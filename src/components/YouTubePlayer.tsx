@@ -181,7 +181,7 @@ export default function YouTubePlayer({
         </div>
 
         {/* 영상 위 진도 칩 (컨트롤 방해 없도록 비클릭, 솔리드) */}
-        <div className="pointer-events-none absolute left-5 top-5 flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-100 shadow-md">
+        <div className="pointer-events-none absolute left-5 top-5 flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-100">
           <span
             className={`h-1.5 w-1.5 rounded-full ${
               completed ? "bg-emerald-400" : "bg-sky-400"
