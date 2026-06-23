@@ -192,8 +192,8 @@ export default function YouTubePlayer({
         </div>
       </div>
 
-      {/* 진도 패널 */}
-      <div className="neu-raised-sm rounded-2xl p-4">
+      {/* 진도 표시 (카드 없이 평면) */}
+      <div className="px-1">
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-slate-700">
             시청 진도 {pct}%
