@@ -36,5 +36,6 @@ export interface Progress {
   last_position: number;
   completed: boolean;
   completed_at: string | null;
+  unlocked_override: boolean; // 교수진 수동 잠금 해제
   updated_at: string;
 }

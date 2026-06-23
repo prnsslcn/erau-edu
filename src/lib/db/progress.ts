@@ -61,17 +61,22 @@ export async function getDashboardSummary(): Promise<{
   return { totalChapters, rows };
 }
 
-export interface StudentDetail {
-  student: Student;
-  chapters: (Chapter & {
-    progress: Pick<
-      Progress,
-      "watched_seconds" | "last_position" | "completed" | "updated_at"
-    > | null;
-  })[];
+export interface StudentDetailChapter extends Chapter {
+  progress: Pick<
+    Progress,
+    "watched_seconds" | "last_position" | "completed" | "updated_at"
+  > | null;
+  unlocked: boolean; // 학생이 접근 가능한 상태인지 (공개 챕터 기준)
+  overridden: boolean; // 교수진 수동 해제 여부
+  naturallyUnlocked: boolean; // 이전 강의 완료로 자연스럽게 열린 상태인지
 }
 
-// 학생 1명의 챕터별 진도 상세.
+export interface StudentDetail {
+  student: Student;
+  chapters: StudentDetailChapter[];
+}
+
+// 학생 1명의 챕터별 진도 + 잠금 상태 상세.
 export async function getStudentDetail(
   studentId: string,
 ): Promise<StudentDetail | null> {
@@ -87,21 +92,45 @@ export async function getStudentDetail(
 
   const [{ data: chapters }, { data: progress }] = await Promise.all([
     db.from("chapters").select("*").order("position", { ascending: true }),
-    db
-      .from("progress")
-      .select("chapter_id, watched_seconds, last_position, completed, updated_at")
-      .eq("student_id", studentId),
+    // 마이그레이션 전후 모두 안전하도록 전체 컬럼 조회
+    db.from("progress").select("*").eq("student_id", studentId),
   ]);
 
   const progressByChapter = new Map(
     (progress ?? []).map((p) => [p.chapter_id, p]),
   );
 
+  // 공개 챕터 순서대로 잠금 상태 계산 (학생이 실제 경험하는 시퀀스)
+  const lockMap = new Map<
+    string,
+    { unlocked: boolean; overridden: boolean; naturallyUnlocked: boolean }
+  >();
+  let prevCompleted = true;
+  for (const c of ((chapters as Chapter[]) ?? []).filter(
+    (c) => c.is_published,
+  )) {
+    const p = progressByChapter.get(c.id);
+    const overridden = p?.unlocked_override ?? false;
+    const naturallyUnlocked = prevCompleted;
+    lockMap.set(c.id, {
+      unlocked: naturallyUnlocked || overridden,
+      overridden,
+      naturallyUnlocked,
+    });
+    prevCompleted = p?.completed ?? false;
+  }
+
   return {
     student: student as Student,
-    chapters: ((chapters as Chapter[]) ?? []).map((c) => ({
-      ...c,
-      progress: progressByChapter.get(c.id) ?? null,
-    })),
+    chapters: ((chapters as Chapter[]) ?? []).map((c) => {
+      const lock = lockMap.get(c.id);
+      return {
+        ...c,
+        progress: progressByChapter.get(c.id) ?? null,
+        unlocked: lock?.unlocked ?? false,
+        overridden: lock?.overridden ?? false,
+        naturallyUnlocked: lock?.naturallyUnlocked ?? false,
+      };
+    }),
   };
 }

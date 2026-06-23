@@ -11,7 +11,8 @@ export interface StudentChapter {
   chapter: Chapter;
   progress: StudentChapterProgress | null;
   completed: boolean;
-  unlocked: boolean; // 첫 강의이거나 이전 강의를 완료했으면 true
+  unlocked: boolean; // 첫 강의이거나 이전 강의 완료, 또는 교수진 수동 해제 시 true
+  overridden: boolean; // 교수진이 수동으로 잠금 해제했는지
 }
 
 // 공개 챕터를 순서대로, 학생의 진도/잠금 상태와 함께 반환합니다.
@@ -26,10 +27,8 @@ export async function getStudentChapters(
       .select("*")
       .eq("is_published", true)
       .order("position", { ascending: true }),
-    db
-      .from("progress")
-      .select("chapter_id, watched_seconds, last_position, completed")
-      .eq("student_id", studentId),
+    // 마이그레이션 전후 모두 안전하도록 전체 컬럼 조회
+    db.from("progress").select("*").eq("student_id", studentId),
   ]);
 
   const progressByChapter = new Map(
@@ -40,9 +39,10 @@ export async function getStudentChapters(
   return ((chapters as Chapter[]) ?? []).map((chapter) => {
     const p = progressByChapter.get(chapter.id) ?? null;
     const completed = p?.completed ?? false;
-    const unlocked = prevCompleted;
+    const overridden = p?.unlocked_override ?? false;
+    const unlocked = prevCompleted || overridden;
     prevCompleted = completed;
-    return { chapter, progress: p, completed, unlocked };
+    return { chapter, progress: p, completed, unlocked, overridden };
   });
 }
 
