@@ -52,14 +52,14 @@
 
 /* ───── 뉴모피즘(Soft UI) 공통 클래스 ───── */
 @layer components {
-  /* 패널/카드/컨테이너 — 그림자 없이 얇은 경계로 구분 */
+  /* 패널/카드/컨테이너 — 양면 그림자(연하게) */
   .neu-raised {
-    @apply border border-slate-200 bg-slate-100;
+    @apply bg-slate-100 shadow-[6px_6px_16px_#d6dde6,-6px_-6px_16px_#ffffff];
   }
 
   /* 작은 카드 (KPI 카드, 리스트 행 등) */
   .neu-raised-sm {
-    @apply border border-slate-200 bg-slate-100;
+    @apply bg-slate-100 shadow-[4px_4px_10px_#d9dfe8,-4px_-4px_10px_#ffffff];
   }
 
   /* 평면 요소 (잠긴 카드, 빈 상태 등) */
@@ -67,9 +67,9 @@
     @apply border border-slate-200 bg-slate-100;
   }
 
-  /* sticky 헤더 — 하단 경계선만 */
+  /* sticky 헤더 — 하단으로 연한 그림자 */
   .neu-header {
-    @apply border-b border-slate-200 bg-slate-100;
+    @apply bg-slate-100 shadow-[0_4px_14px_-6px_#cdd5e0];
   }
 
   /* 평면 입력 필드 (얇은 경계 + 흰 배경, 넉넉한 패딩) */
@@ -77,13 +77,13 @@
     @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-200;
   }
 
-  /* 기본 버튼 — 그림자 없이 경계선 (누르면 살짝 작아짐) */
+  /* 기본 버튼 — 양면 그림자(연하게) */
   .neu-btn {
-    @apply rounded-xl border border-slate-300 bg-slate-100 font-semibold text-slate-700 transition-all hover:bg-slate-200 active:scale-95 disabled:opacity-60;
+    @apply rounded-xl bg-slate-100 font-semibold text-slate-700 shadow-[5px_5px_12px_#d6dde6,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
   }
 
-  /* 강조(Primary) 버튼 — 솔리드 브랜드 컬러 (그림자 없음) */
+  /* 강조(Primary) 버튼 — 솔리드 블루 + 양면 그림자(연하게) */
   .neu-btn-primary {
-    @apply rounded-xl bg-blue-500 font-semibold text-white transition-all hover:bg-blue-600 active:scale-95 disabled:opacity-60;
+    @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#d6dde6,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 hover:bg-blue-600 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
   }
 }
