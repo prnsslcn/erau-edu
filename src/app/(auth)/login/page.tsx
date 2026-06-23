@@ -1,0 +1,39 @@
+import Link from "next/link";
+import AuthForm from "@/components/AuthForm";
+
+export default function StudentLoginPage() {
+  return (
+    <AuthForm
+      title="학생 로그인"
+      subtitle="전화번호와 비밀번호 4자리로 로그인하세요."
+      endpoint="/api/auth/student/login"
+      redirectTo="/learn"
+      submitLabel="로그인"
+      fields={[
+        {
+          name: "phone",
+          label: "전화번호",
+          inputMode: "tel",
+          placeholder: "01012345678",
+          autoComplete: "username",
+        },
+        {
+          name: "password",
+          label: "비밀번호 (숫자 4자리)",
+          type: "password",
+          inputMode: "numeric",
+          maxLength: 4,
+          autoComplete: "current-password",
+        },
+      ]}
+      footer={
+        <span className="text-black/55">
+          처음이신가요?{" "}
+          <Link href="/signup" className="font-semibold text-brand">
+            회원가입
+          </Link>
+        </span>
+      }
+    />
+  );
+}
