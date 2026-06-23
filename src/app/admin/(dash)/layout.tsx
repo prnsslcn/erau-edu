@@ -18,7 +18,7 @@ export default async function AdminLayout({
           <div className="flex items-center gap-6">
             <Link
               href="/admin"
-              className="font-display text-2xl font-bold tracking-tight"
+              className="font-display text-2xl font-extrabold tracking-tight sm:text-4xl"
             >
               ERAU EduPrep · 관리자
             </Link>

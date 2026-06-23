@@ -17,7 +17,7 @@ export default async function LearnLayout({
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
           <Link
             href="/learn"
-            className="font-display text-2xl font-bold tracking-tight"
+            className="font-display text-2xl font-extrabold tracking-tight sm:text-4xl"
           >
             ERAU EduPrep
           </Link>
