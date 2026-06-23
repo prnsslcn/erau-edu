@@ -24,7 +24,7 @@ export default async function StudentDetailPage({
   const completed = chapters.filter((c) => c.progress?.completed).length;
 
   return (
-    <div className="space-y-6">
+    <div className="glass-panel space-y-6 rounded-3xl p-8">
       <div>
         <Link href="/admin" className="text-sm text-brand hover:underline">
           ← 대시보드
@@ -38,7 +38,7 @@ export default async function StudentDetailPage({
       </div>
 
       {chapters.length === 0 ? (
-        <p className="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="glass-soft rounded-2xl p-8 text-center text-sm text-slate-400">
           등록된 강의가 없습니다.
         </p>
       ) : (
@@ -53,7 +53,7 @@ export default async function StudentDetailPage({
             return (
               <li
                 key={c.id}
-                className="glass-panel flex items-center justify-between gap-4 rounded-2xl px-4 py-3.5"
+                className="glass-soft flex items-center justify-between gap-4 rounded-2xl px-4 py-3.5"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

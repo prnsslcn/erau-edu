@@ -30,23 +30,33 @@
 
 /* ───── 글래스모피즘 공통 클래스 ───── */
 @layer components {
-  /* 카드/패널 기본 유리 */
+  /* 핵심 콘텐츠를 감싸는 뚜렷한 유리 상자 */
   .glass-panel {
-    @apply border border-white/60 bg-white/45 shadow-xl shadow-blue-900/5 backdrop-blur-lg;
+    @apply border border-white/70 bg-white/40 shadow-2xl shadow-blue-900/10 backdrop-blur-xl;
   }
 
-  /* sticky 헤더용 유리 (더 투명하게) */
+  /* 유리 상자 안에 들어가는 가벼운 서브 카드 (중첩 블러 방지) */
+  .glass-soft {
+    @apply border border-white/50 bg-white/30;
+  }
+
+  /* sticky 헤더용 유리 */
   .glass-header {
-    @apply border-b border-white/60 bg-white/55 shadow-lg shadow-blue-900/5 backdrop-blur-lg;
+    @apply border-b border-white/60 bg-white/45 shadow-lg shadow-blue-900/5 backdrop-blur-xl;
   }
 
-  /* 입력 필드 유리 */
+  /* 입력 필드 — 배경보다 살짝 파인 느낌 */
   .glass-input {
-    @apply w-full rounded-xl border border-white/70 bg-white/50 px-3.5 py-2.5 text-[15px] outline-none backdrop-blur-sm transition placeholder:text-slate-400 focus:border-brand/40 focus:bg-white/80 focus:ring-2 focus:ring-brand/15;
+    @apply w-full rounded-xl border border-white/50 bg-white/20 px-3.5 py-2.5 text-[15px] text-slate-800 outline-none backdrop-blur-sm transition-all placeholder:text-slate-500/70 focus:border-white/70 focus:bg-white/50 focus:ring-2 focus:ring-blue-400/50;
+  }
+
+  /* 기본 강조 버튼 — 부드러운 컬러 그림자 */
+  .glass-btn-primary {
+    @apply rounded-xl bg-brand font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:opacity-90 hover:shadow-blue-500/40 disabled:opacity-50;
   }
 
   /* 리스트 항목 호버 인터랙션 */
   .glass-hover {
-    @apply transition-colors duration-200 hover:bg-white/60;
+    @apply transition-colors duration-200 hover:bg-white/55;
   }
 }

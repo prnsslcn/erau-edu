@@ -27,22 +27,24 @@ export default async function AdminDashboard() {
         </p>
       </div>
 
-      {/* KPI 카드 */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {kpis.map((k) => (
-          <div
-            key={k.label}
-            className="glass-panel rounded-2xl p-5 transition-transform duration-200 hover:-translate-y-2"
-          >
-            <p className="text-sm text-slate-500">{k.label}</p>
-            <p className="mt-1.5 text-3xl font-bold tracking-tight text-slate-800">
-              {k.value}
-              <span className="ml-1 text-base font-medium text-slate-400">
-                {k.unit}
-              </span>
-            </p>
-          </div>
-        ))}
+      {/* KPI 카드 — 하나의 글래스 패널 안에 */}
+      <div className="glass-panel rounded-3xl p-5">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          {kpis.map((k) => (
+            <div
+              key={k.label}
+              className="glass-soft rounded-2xl p-5 transition-transform duration-200 hover:-translate-y-2"
+            >
+              <p className="text-sm text-slate-500">{k.label}</p>
+              <p className="mt-1.5 text-3xl font-bold tracking-tight text-slate-800">
+                {k.value}
+                <span className="ml-1 text-base font-medium text-slate-400">
+                  {k.unit}
+                </span>
+              </p>
+            </div>
+          ))}
+        </div>
       </div>
 
       {rows.length === 0 ? (

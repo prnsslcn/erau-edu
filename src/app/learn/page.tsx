@@ -13,7 +13,7 @@ export default async function LearnHome() {
   const completed = items.filter((i) => i.completed).length;
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="glass-panel mx-auto max-w-3xl space-y-6 rounded-3xl p-8">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">강의 목록</h1>
         <p className="mt-1 text-sm text-slate-500">
@@ -23,7 +23,7 @@ export default async function LearnHome() {
       </div>
 
       {items.length === 0 ? (
-        <p className="glass-panel rounded-2xl p-10 text-center text-sm text-slate-400">
+        <p className="glass-soft rounded-2xl p-10 text-center text-sm text-slate-400">
           아직 공개된 강의가 없습니다. 곧 등록될 예정입니다.
         </p>
       ) : (
@@ -48,8 +48,8 @@ export default async function LearnHome() {
               <div
                 className={`flex items-center justify-between gap-4 rounded-2xl p-4 ${
                   unlocked
-                    ? "glass-panel glass-hover hover:-translate-y-0.5 hover:shadow-blue-900/10"
-                    : "border border-white/40 bg-white/25 backdrop-blur-sm"
+                    ? "glass-soft glass-hover shadow-sm shadow-blue-900/5 hover:-translate-y-0.5 hover:shadow-md hover:shadow-blue-900/10"
+                    : "border border-white/40 bg-white/15"
                 } transition-all duration-200`}
               >
                 <div className="min-w-0">

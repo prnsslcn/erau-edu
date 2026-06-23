@@ -28,8 +28,8 @@ export default async function ChapterPlayerPage({
 
   return (
     <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-6">
-      {/* 본문 — 플레이어 */}
-      <div className="space-y-5">
+      {/* 본문 — 플레이어 (글래스 프레임) */}
+      <div className="glass-panel space-y-5 rounded-3xl p-5 sm:p-6">
         <div>
           <Link href="/learn" className="text-sm text-brand hover:underline">
             ← 강의 목록
@@ -59,7 +59,7 @@ export default async function ChapterPlayerPage({
             href={chapter.material_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-panel inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-white/60"
+            className="glass-soft inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-white/55"
           >
             <span aria-hidden>📄</span> 강의자료 열기
           </a>

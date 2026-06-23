@@ -194,7 +194,7 @@ export default function YouTubePlayer({
       </div>
 
       {/* 글래스 진도 패널 */}
-      <div className="glass-panel rounded-2xl p-4">
+      <div className="glass-soft rounded-2xl p-4">
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-slate-700">
             시청 진도 {pct}%

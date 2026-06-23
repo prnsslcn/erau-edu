@@ -67,7 +67,7 @@ export default function AuthForm({
   }
 
   return (
-    <div className="glass-panel rounded-3xl p-7">
+    <div className="glass-panel rounded-3xl p-8">
       <h1 className="text-xl font-bold tracking-tight">{title}</h1>
       {subtitle && (
         <p className="mt-1.5 text-sm leading-snug text-slate-500">{subtitle}</p>
@@ -105,7 +105,7 @@ export default function AuthForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-xl bg-brand py-2.5 text-[15px] font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 hover:shadow-blue-900/25 disabled:opacity-50"
+          className="glass-btn-primary w-full py-2.5 text-[15px]"
         >
           {loading ? "처리 중…" : submitLabel}
         </button>

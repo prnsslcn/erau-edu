@@ -9,7 +9,7 @@ export default async function Home() {
 
   return (
     <main className="flex flex-1 items-center justify-center px-4 py-16">
-      <div className="w-full max-w-lg text-center">
+      <div className="glass-panel w-full max-w-lg rounded-3xl p-10 text-center">
         <p className="text-sm font-semibold tracking-wide text-brand">
           EMBRY-RIDDLE 진학 준비
         </p>
@@ -24,13 +24,13 @@ export default async function Home() {
         <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/login"
-            className="rounded-xl bg-brand px-6 py-3 text-[15px] font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 hover:shadow-blue-900/25"
+            className="glass-btn-primary px-6 py-3 text-[15px]"
           >
             학생 로그인
           </Link>
           <Link
             href="/signup"
-            className="glass-panel rounded-xl px-6 py-3 text-[15px] font-semibold text-slate-700 transition hover:bg-white/60"
+            className="rounded-xl border border-white/60 bg-white/30 px-6 py-3 text-[15px] font-semibold text-slate-700 backdrop-blur-sm transition hover:bg-white/50"
           >
             회원가입
           </Link>

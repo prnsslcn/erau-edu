@@ -42,7 +42,7 @@ function ChapterForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="space-y-3 rounded-2xl border border-white/60 bg-white/35 p-4 backdrop-blur-lg"
+      className="glass-soft space-y-3 rounded-2xl p-4"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_120px]">
         <div>
@@ -125,7 +125,7 @@ function ChapterForm({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 disabled:opacity-50"
+          className="glass-btn-primary px-4 py-2 text-sm"
         >
           {pending ? "저장 중…" : chapter ? "수정 저장" : "강의 추가"}
         </button>
@@ -169,13 +169,13 @@ export default function ChapterManager({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="glass-panel space-y-6 rounded-3xl p-8">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">강의 관리</h1>
         {!creating && (
           <button
             onClick={() => setCreating(true)}
-            className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 hover:shadow-blue-900/25"
+            className="glass-btn-primary px-4 py-2 text-sm"
           >
             + 새 강의
           </button>
@@ -194,13 +194,13 @@ export default function ChapterManager({
       )}
 
       {chapters.length === 0 && !creating ? (
-        <p className="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="glass-soft rounded-2xl p-8 text-center text-sm text-slate-400">
           아직 등록된 강의가 없습니다. "새 강의"로 추가하세요.
         </p>
       ) : (
         <ul className="space-y-3">
           {chapters.map((c) => (
-            <li key={c.id} className="glass-panel rounded-2xl p-4">
+            <li key={c.id} className="glass-soft rounded-2xl p-4">
               {editingId === c.id ? (
                 <ChapterForm
                   chapter={c}
