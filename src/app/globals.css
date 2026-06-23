@@ -54,12 +54,12 @@
 @layer components {
   /* 패널/카드/컨테이너 — 양면 그림자(연하게) */
   .neu-raised {
-    @apply bg-slate-100 shadow-[6px_6px_16px_#d6dde6,-6px_-6px_16px_#ffffff];
+    @apply bg-slate-100 shadow-[6px_6px_16px_#e3e8f0,-6px_-6px_16px_#ffffff];
   }
 
   /* 작은 카드 (KPI 카드, 리스트 행 등) */
   .neu-raised-sm {
-    @apply bg-slate-100 shadow-[4px_4px_10px_#d9dfe8,-4px_-4px_10px_#ffffff];
+    @apply bg-slate-100 shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff];
   }
 
   /* 평면 요소 (잠긴 카드, 빈 상태 등) */
@@ -69,7 +69,7 @@
 
   /* sticky 헤더 — 하단으로 연한 그림자 */
   .neu-header {
-    @apply bg-slate-100 shadow-[0_4px_14px_-6px_#cdd5e0];
+    @apply bg-slate-100 shadow-[0_4px_14px_-6px_#dde3eb];
   }
 
   /* 평면 입력 필드 (얇은 경계 + 흰 배경, 넉넉한 패딩) */
@@ -79,11 +79,11 @@
 
   /* 기본 버튼 — 양면 그림자(연하게) */
   .neu-btn {
-    @apply rounded-xl bg-slate-100 font-semibold text-slate-700 shadow-[5px_5px_12px_#d6dde6,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
+    @apply rounded-xl bg-slate-100 font-semibold text-slate-700 shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
   }
 
   /* 강조(Primary) 버튼 — 솔리드 블루 + 양면 그림자(연하게) */
   .neu-btn-primary {
-    @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#d6dde6,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 hover:bg-blue-600 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
+    @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 hover:bg-blue-600 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
   }
 }
