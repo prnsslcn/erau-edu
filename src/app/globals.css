@@ -18,6 +18,7 @@
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
   --font-sans: "Pretendard", system-ui, sans-serif;
+  --font-display: var(--font-outfit), "Pretendard", sans-serif;
 }
 
 @layer base {

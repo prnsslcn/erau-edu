@@ -14,9 +14,12 @@ export default async function AdminLayout({
   return (
     <>
       <header className="neu-header sticky top-0 z-10">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
           <div className="flex items-center gap-6">
-            <Link href="/admin" className="font-bold tracking-tight">
+            <Link
+              href="/admin"
+              className="font-display text-2xl font-bold tracking-tight"
+            >
               ERAU EduPrep · 관리자
             </Link>
             <nav className="flex items-center gap-4 text-sm">

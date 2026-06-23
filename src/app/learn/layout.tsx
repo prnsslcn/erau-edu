@@ -14,8 +14,11 @@ export default async function LearnLayout({
   return (
     <>
       <header className="neu-header sticky top-0 z-10">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
-          <Link href="/learn" className="font-bold tracking-tight">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
+          <Link
+            href="/learn"
+            className="font-display text-2xl font-bold tracking-tight"
+          >
             ERAU EduPrep
           </Link>
           <div className="flex items-center gap-4">
