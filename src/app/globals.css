@@ -67,9 +67,9 @@
     @apply border border-slate-200 bg-slate-100;
   }
 
-  /* sticky 헤더 — 하단으로 연한 그림자 */
+  /* sticky 헤더 — 그림자 없이 단색 */
   .neu-header {
-    @apply bg-slate-100 shadow-[0_4px_14px_-6px_#dde3eb];
+    @apply bg-slate-100;
   }
 
   /* 평면 입력 필드 (얇은 경계 + 흰 배경, 넉넉한 패딩) */
