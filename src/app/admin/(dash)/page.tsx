@@ -46,7 +46,7 @@ export default async function AdminDashboard() {
       </div>
 
       {rows.length === 0 ? (
-        <p className="neu-inset rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
           아직 가입한 학생이 없습니다.
         </p>
       ) : (

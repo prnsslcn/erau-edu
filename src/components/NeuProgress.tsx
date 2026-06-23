@@ -12,10 +12,10 @@ export default function NeuProgress({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-full bg-slate-100 shadow-[inset_2px_2px_5px_#cbd5e1,inset_-2px_-2px_5px_#ffffff] ${className}`}
+      className={`relative overflow-hidden rounded-full bg-slate-200 ${className}`}
     >
       <div
-        className="h-full rounded-full bg-blue-500 shadow-[1px_1px_3px_#94a3b8] transition-[width] duration-500 ease-out"
+        className="h-full rounded-full bg-blue-500 transition-[width] duration-500 ease-out"
         style={{ width: `${p}%` }}
       />
     </div>

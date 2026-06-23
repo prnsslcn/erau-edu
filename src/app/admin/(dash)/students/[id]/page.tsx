@@ -39,7 +39,7 @@ export default async function StudentDetailPage({
       </div>
 
       {chapters.length === 0 ? (
-        <p className="neu-inset rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
           등록된 강의가 없습니다.
         </p>
       ) : (

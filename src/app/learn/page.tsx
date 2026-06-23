@@ -23,7 +23,7 @@ export default async function LearnHome() {
       </div>
 
       {items.length === 0 ? (
-        <p className="neu-inset rounded-2xl p-10 text-center text-sm text-slate-400">
+        <p className="neu-flat rounded-2xl p-10 text-center text-sm text-slate-400">
           아직 공개된 강의가 없습니다. 곧 등록될 예정입니다.
         </p>
       ) : (
@@ -49,7 +49,7 @@ export default async function LearnHome() {
                 className={`flex items-center justify-between gap-4 rounded-2xl p-4 ${
                   unlocked
                     ? "neu-raised-sm hover:-translate-y-0.5"
-                    : "neu-inset"
+                    : "neu-flat"
                 } transition-all duration-200`}
               >
                 <div className="min-w-0">

@@ -97,7 +97,7 @@ export default function AuthForm({
         ))}
 
         {error && (
-          <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600 shadow-[inset_3px_3px_6px_#e5c0c0,inset_-3px_-3px_6px_#ffffff]">
+          <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
             {error}
           </p>
         )}

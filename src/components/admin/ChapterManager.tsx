@@ -194,7 +194,7 @@ export default function ChapterManager({
       )}
 
       {chapters.length === 0 && !creating ? (
-        <p className="neu-inset rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
           아직 등록된 강의가 없습니다. "새 강의"로 추가하세요.
         </p>
       ) : (
