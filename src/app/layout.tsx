@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import PlaneBackdrop from "@/components/PlaneBackdrop";
 
 export const metadata: Metadata = {
   title: "ERAU 입학 전 교육",
@@ -15,10 +14,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className="h-full antialiased">
-      <body className="relative min-h-full flex flex-col bg-slate-100">
-        <PlaneBackdrop />
-        {children}
-      </body>
+      <body className="min-h-full flex flex-col bg-slate-100">{children}</body>
     </html>
   );
 }
