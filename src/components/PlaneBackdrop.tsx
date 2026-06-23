@@ -1,14 +1,14 @@
-// 인증 화면 우측 배경 장식 — 연한 파란색 비행기 도형 (포인트 색상보다 옅게)
+// 전역 배경 장식 — 연한 파란색 비행기 도형 (blur로 부드럽게, 뉴모피즘과 조화)
 export default function PlaneBackdrop() {
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute inset-0 overflow-hidden"
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
       <svg
         viewBox="0 0 257.24 307"
         fill="currentColor"
-        className="absolute right-[-6%] top-1/2 h-[150%] w-auto -translate-y-1/2 rotate-[35deg] text-blue-200/80"
+        className="absolute right-[-6%] top-1/2 h-[150%] w-auto -translate-y-1/2 rotate-[35deg] text-blue-200/70 blur-2xl"
       >
         <path
           fillRule="evenodd"
