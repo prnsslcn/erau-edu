@@ -67,10 +67,10 @@ export default function AuthForm({
   }
 
   return (
-    <div className="rounded-2xl border border-black/8 bg-white p-7 shadow-sm">
+    <div className="glass-panel rounded-3xl p-7">
       <h1 className="text-xl font-bold tracking-tight">{title}</h1>
       {subtitle && (
-        <p className="mt-1.5 text-sm leading-snug text-black/55">{subtitle}</p>
+        <p className="mt-1.5 text-sm leading-snug text-slate-500">{subtitle}</p>
       )}
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -78,7 +78,7 @@ export default function AuthForm({
           <div key={f.name}>
             <label
               htmlFor={f.name}
-              className="mb-1.5 block text-sm font-medium text-black/70"
+              className="mb-1.5 block text-sm font-medium text-slate-600"
             >
               {f.label}
             </label>
@@ -91,13 +91,13 @@ export default function AuthForm({
               autoComplete={f.autoComplete}
               placeholder={f.placeholder}
               required
-              className="w-full rounded-lg border border-black/12 bg-white px-3.5 py-2.5 text-[15px] outline-none transition focus:border-brand focus:ring-2 focus:ring-brand/15"
+              className="glass-input"
             />
           </div>
         ))}
 
         {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          <p className="rounded-xl border border-red-200/60 bg-red-50/70 px-3 py-2 text-sm text-red-600 backdrop-blur-sm">
             {error}
           </p>
         )}
@@ -105,7 +105,7 @@ export default function AuthForm({
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-lg bg-brand py-2.5 text-[15px] font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+          className="w-full rounded-xl bg-brand py-2.5 text-[15px] font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 hover:shadow-blue-900/25 disabled:opacity-50"
         >
           {loading ? "처리 중…" : submitLabel}
         </button>

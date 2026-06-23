@@ -33,7 +33,7 @@ export default function StudentSignupPage() {
         },
       ]}
       footer={
-        <span className="text-black/55">
+        <span className="text-slate-500">
           이미 계정이 있으신가요?{" "}
           <Link href="/login" className="font-semibold text-brand">
             로그인

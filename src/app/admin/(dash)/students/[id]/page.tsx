@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getStudentDetail } from "@/lib/db/progress";
+import GlassProgress from "@/components/GlassProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -31,17 +32,17 @@ export default async function StudentDetailPage({
         <h1 className="mt-2 text-2xl font-bold tracking-tight">
           {student.name}
         </h1>
-        <p className="mt-1 text-sm text-black/55">
+        <p className="mt-1 text-sm text-slate-500">
           {student.phone} · 완료 {completed} / {chapters.length} 강의
         </p>
       </div>
 
       {chapters.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-black/15 p-8 text-center text-sm text-black/45">
+        <p className="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
           등록된 강의가 없습니다.
         </p>
       ) : (
-        <ul className="space-y-2">
+        <ul className="space-y-2.5">
           {chapters.map((c) => {
             const p = c.progress;
             const dur = c.duration_seconds ?? 0;
@@ -52,34 +53,43 @@ export default async function StudentDetailPage({
             return (
               <li
                 key={c.id}
-                className="flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-white px-4 py-3"
+                className="glass-panel flex items-center justify-between gap-4 rounded-2xl px-4 py-3.5"
               >
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-black/40">
+                    <span className="text-xs font-semibold text-slate-400">
                       #{c.position}
                     </span>
-                    <span className="truncate font-medium">{c.title}</span>
+                    <span className="truncate font-medium text-slate-700">
+                      {c.title}
+                    </span>
                     {!c.is_published && (
-                      <span className="rounded-full bg-black/5 px-2 py-0.5 text-[11px] text-black/45">
+                      <span className="rounded-full bg-slate-400/10 px-2 py-0.5 text-[11px] text-slate-400">
                         비공개
                       </span>
                     )}
                   </div>
                   {p && (
-                    <p className="mt-0.5 text-xs text-black/45">
-                      마지막 위치 {fmtTime(p.last_position)}
-                      {dur > 0 ? ` · 시청 ${pct}%` : ""}
-                    </p>
+                    <>
+                      <p className="mt-1 text-xs text-slate-400">
+                        마지막 위치 {fmtTime(p.last_position)}
+                        {dur > 0 ? ` · 시청 ${pct}%` : ""}
+                      </p>
+                      {dur > 0 && (
+                        <div className="mt-2 max-w-xs">
+                          <GlassProgress percent={pct} className="h-1.5" />
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
                 <span
                   className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
                     p?.completed
-                      ? "bg-emerald-50 text-emerald-700"
+                      ? "bg-emerald-400/15 text-emerald-700 ring-1 ring-inset ring-emerald-400/30"
                       : p
-                        ? "bg-amber-50 text-amber-700"
-                        : "bg-black/5 text-black/45"
+                        ? "bg-amber-400/15 text-amber-700 ring-1 ring-inset ring-amber-400/30"
+                        : "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40"
                   }`}
                 >
                   {p?.completed ? "완료" : p ? "수강 중" : "미시청"}

@@ -13,18 +13,18 @@ export default async function LearnLayout({
 
   return (
     <>
-      <header className="sticky top-0 z-10 border-b border-black/8 bg-white/85 backdrop-blur">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3.5">
+      <header className="glass-header sticky top-0 z-10">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
           <Link href="/learn" className="font-bold tracking-tight">
             ERAU 입학 전 교육
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-black/55">{session.name} 님</span>
+            <span className="text-sm text-slate-500">{session.name} 님</span>
             <LogoutButton />
           </div>
         </div>
       </header>
-      <div className="mx-auto w-full max-w-3xl flex-1 px-4 py-8">{children}</div>
+      <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-8">{children}</div>
     </>
   );
 }

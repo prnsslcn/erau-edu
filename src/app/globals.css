@@ -10,21 +10,43 @@
 }
 
 :root {
-  --background: #f7f8fa;
   --foreground: #14181f;
   --brand: #0a4d8c; /* ERAU 블루 계열 */
 }
 
 @theme inline {
-  --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
   --font-sans: "Pretendard", system-ui, sans-serif;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  word-break: keep-all;
+@layer base {
+  body {
+    @apply bg-slate-50 text-foreground;
+    font-family: var(--font-sans);
+    word-break: keep-all;
+  }
+}
+
+/* ───── 글래스모피즘 공통 클래스 ───── */
+@layer components {
+  /* 카드/패널 기본 유리 */
+  .glass-panel {
+    @apply border border-white/60 bg-white/45 shadow-xl shadow-blue-900/5 backdrop-blur-lg;
+  }
+
+  /* sticky 헤더용 유리 (더 투명하게) */
+  .glass-header {
+    @apply border-b border-white/60 bg-white/55 shadow-lg shadow-blue-900/5 backdrop-blur-lg;
+  }
+
+  /* 입력 필드 유리 */
+  .glass-input {
+    @apply w-full rounded-xl border border-white/70 bg-white/50 px-3.5 py-2.5 text-[15px] outline-none backdrop-blur-sm transition placeholder:text-slate-400 focus:border-brand/40 focus:bg-white/80 focus:ring-2 focus:ring-brand/15;
+  }
+
+  /* 리스트 항목 호버 인터랙션 */
+  .glass-hover {
+    @apply transition-colors duration-200 hover:bg-white/60;
+  }
 }

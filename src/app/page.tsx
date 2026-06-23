@@ -16,7 +16,7 @@ export default async function Home() {
         <h1 className="mt-3 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
           입학 전 온라인 교육 과정
         </h1>
-        <p className="mt-4 text-[15px] leading-relaxed text-black/60">
+        <p className="mt-4 text-[15px] leading-relaxed text-slate-600">
           강의 영상을 순서대로 수강하고, 챕터를 완료하면 다음 강의가 열립니다.
           소속 학생을 위한 비공개 교육 페이지입니다.
         </p>
@@ -24,19 +24,19 @@ export default async function Home() {
         <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/login"
-            className="rounded-lg bg-brand px-6 py-3 text-[15px] font-semibold text-white transition hover:opacity-90"
+            className="rounded-xl bg-brand px-6 py-3 text-[15px] font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 hover:shadow-blue-900/25"
           >
             학생 로그인
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg border border-black/12 bg-white px-6 py-3 text-[15px] font-semibold text-black/75 transition hover:border-black/25"
+            className="glass-panel rounded-xl px-6 py-3 text-[15px] font-semibold text-slate-700 transition hover:bg-white/60"
           >
             회원가입
           </Link>
         </div>
 
-        <p className="mt-8 text-sm text-black/45">
+        <p className="mt-8 text-sm text-slate-400">
           교수진이신가요?{" "}
           <Link href="/admin/login" className="font-medium text-brand">
             관리자 로그인

@@ -24,7 +24,7 @@ export default function LogoutButton({
       disabled={loading}
       className={
         className ??
-        "text-sm font-medium text-black/55 transition hover:text-black/80 disabled:opacity-50"
+        "text-sm font-medium text-slate-500 transition hover:text-slate-800 disabled:opacity-50"
       }
     >
       {loading ? "…" : "로그아웃"}

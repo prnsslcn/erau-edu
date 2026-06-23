@@ -13,48 +13,57 @@ export default async function LearnHome() {
   const completed = items.filter((i) => i.completed).length;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">강의 목록</h1>
-        <p className="mt-1 text-sm text-black/55">
+        <p className="mt-1 text-sm text-slate-500">
           순서대로 수강하세요. 강의를 완료하면 다음 강의가 열립니다.
           {items.length > 0 && ` (완료 ${completed} / ${items.length})`}
         </p>
       </div>
 
       {items.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-black/15 p-10 text-center text-sm text-black/45">
+        <p className="glass-panel rounded-2xl p-10 text-center text-sm text-slate-400">
           아직 공개된 강의가 없습니다. 곧 등록될 예정입니다.
         </p>
       ) : (
         <ul className="space-y-3">
           {items.map(({ chapter, completed, unlocked }) => {
             const status = completed
-              ? { label: "완료", cls: "bg-emerald-50 text-emerald-700" }
+              ? {
+                  label: "완료",
+                  cls: "bg-emerald-400/15 text-emerald-700 ring-1 ring-inset ring-emerald-400/30",
+                }
               : unlocked
-                ? { label: "수강 가능", cls: "bg-brand/10 text-brand" }
-                : { label: "잠김", cls: "bg-black/5 text-black/40" };
+                ? {
+                    label: "수강 가능",
+                    cls: "bg-brand/10 text-brand ring-1 ring-inset ring-brand/20",
+                  }
+                : {
+                    label: "잠김",
+                    cls: "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40",
+                  };
 
             const inner = (
               <div
-                className={`flex items-center justify-between gap-4 rounded-xl border p-4 transition ${
+                className={`flex items-center justify-between gap-4 rounded-2xl p-4 ${
                   unlocked
-                    ? "border-black/10 bg-white hover:border-brand/40 hover:shadow-sm"
-                    : "border-black/8 bg-black/[.02]"
-                }`}
+                    ? "glass-panel glass-hover hover:-translate-y-0.5 hover:shadow-blue-900/10"
+                    : "border border-white/40 bg-white/25 backdrop-blur-sm"
+                } transition-all duration-200`}
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-black/35">
+                    <span className="text-xs font-semibold text-slate-400">
                       {chapter.position + 1}강
                     </span>
                     <span
-                      className={`font-semibold ${unlocked ? "" : "text-black/40"}`}
+                      className={`font-semibold ${unlocked ? "" : "text-slate-400"}`}
                     >
                       {chapter.title}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-black/45">
+                  <p className="mt-1 text-xs text-slate-500">
                     {unlocked
                       ? chapter.description || "강의를 시청하세요."
                       : "이전 강의를 완료하면 열립니다."}

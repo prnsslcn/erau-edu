@@ -37,17 +37,16 @@ function ChapterForm({
     });
   }
 
-  const input =
-    "w-full rounded-lg border border-black/12 bg-white px-3 py-2 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/15";
+  const input = "glass-input text-sm";
 
   return (
     <form
       onSubmit={onSubmit}
-      className="space-y-3 rounded-xl border border-black/10 bg-black/[.015] p-4"
+      className="space-y-3 rounded-2xl border border-white/60 bg-white/35 p-4 backdrop-blur-lg"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_120px]">
         <div>
-          <label className="mb-1 block text-xs font-medium text-black/55">
+          <label className="mb-1 block text-xs font-medium text-slate-500">
             제목
           </label>
           <input
@@ -59,7 +58,7 @@ function ChapterForm({
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-black/55">
+          <label className="mb-1 block text-xs font-medium text-slate-500">
             순서
           </label>
           <input
@@ -74,7 +73,7 @@ function ChapterForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-black/55">
+        <label className="mb-1 block text-xs font-medium text-slate-500">
           YouTube 링크 또는 영상 ID
         </label>
         <input
@@ -87,7 +86,7 @@ function ChapterForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-black/55">
+        <label className="mb-1 block text-xs font-medium text-slate-500">
           강의자료 링크 (선택)
         </label>
         <input
@@ -99,7 +98,7 @@ function ChapterForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-black/55">
+        <label className="mb-1 block text-xs font-medium text-slate-500">
           설명 (선택)
         </label>
         <textarea
@@ -110,7 +109,7 @@ function ChapterForm({
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-black/70">
+      <label className="flex items-center gap-2 text-sm text-slate-600">
         <input
           name="is_published"
           type="checkbox"
@@ -126,7 +125,7 @@ function ChapterForm({
         <button
           type="submit"
           disabled={pending}
-          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+          className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 disabled:opacity-50"
         >
           {pending ? "저장 중…" : chapter ? "수정 저장" : "강의 추가"}
         </button>
@@ -134,7 +133,7 @@ function ChapterForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-lg border border-black/12 px-4 py-2 text-sm font-medium text-black/60 hover:border-black/25"
+            className="rounded-xl border border-white/70 bg-white/50 px-4 py-2 text-sm font-medium text-slate-600 backdrop-blur-sm transition hover:bg-white/70"
           >
             취소
           </button>
@@ -176,7 +175,7 @@ export default function ChapterManager({
         {!creating && (
           <button
             onClick={() => setCreating(true)}
-            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+            className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-900/15 transition hover:opacity-90 hover:shadow-blue-900/25"
           >
             + 새 강의
           </button>
@@ -195,16 +194,13 @@ export default function ChapterManager({
       )}
 
       {chapters.length === 0 && !creating ? (
-        <p className="rounded-xl border border-dashed border-black/15 p-8 text-center text-sm text-black/45">
+        <p className="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
           아직 등록된 강의가 없습니다. "새 강의"로 추가하세요.
         </p>
       ) : (
         <ul className="space-y-3">
           {chapters.map((c) => (
-            <li
-              key={c.id}
-              className="rounded-xl border border-black/10 bg-white p-4"
-            >
+            <li key={c.id} className="glass-panel rounded-2xl p-4">
               {editingId === c.id ? (
                 <ChapterForm
                   chapter={c}
@@ -218,21 +214,23 @@ export default function ChapterManager({
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold text-black/40">
+                      <span className="text-xs font-semibold text-slate-400">
                         #{c.position}
                       </span>
-                      <span className="font-semibold">{c.title}</span>
+                      <span className="font-semibold text-slate-700">
+                        {c.title}
+                      </span>
                       <span
                         className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
                           c.is_published
-                            ? "bg-emerald-50 text-emerald-700"
-                            : "bg-black/5 text-black/45"
+                            ? "bg-emerald-400/15 text-emerald-700 ring-1 ring-inset ring-emerald-400/30"
+                            : "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40"
                         }`}
                       >
                         {c.is_published ? "공개" : "비공개"}
                       </span>
                     </div>
-                    <p className="mt-1 truncate text-xs text-black/45">
+                    <p className="mt-1 truncate text-xs text-slate-400">
                       영상 ID: {c.youtube_id}
                       {c.material_url ? " · 자료 링크 있음" : ""}
                     </p>
@@ -240,13 +238,13 @@ export default function ChapterManager({
                   <div className="flex shrink-0 gap-2">
                     <button
                       onClick={() => setEditingId(c.id)}
-                      className="rounded-lg border border-black/12 px-3 py-1.5 text-sm text-black/60 hover:border-black/25"
+                      className="rounded-xl border border-white/70 bg-white/50 px-3 py-1.5 text-sm text-slate-600 backdrop-blur-sm transition hover:bg-white/70"
                     >
                       수정
                     </button>
                     <button
                       onClick={() => onDelete(c)}
-                      className="rounded-lg border border-red-200 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50"
+                      className="rounded-xl border border-red-200/70 bg-red-50/40 px-3 py-1.5 text-sm text-red-600 backdrop-blur-sm transition hover:bg-red-50/80"
                     >
                       삭제
                     </button>
