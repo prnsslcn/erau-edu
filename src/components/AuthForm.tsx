@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Phone, Lock, Mail, Home, type LucideIcon } from "lucide-react";
+import { User, Phone, Lock, Mail, ArrowLeft, type LucideIcon } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   user: User,
@@ -138,7 +138,7 @@ export default function AuthForm({
           href="/"
           className="neu-btn inline-flex items-center gap-1.5 px-4 py-2 text-sm text-slate-600"
         >
-          <Home size={16} />
+          <ArrowLeft size={16} />
           Home
         </Link>
       </div>
