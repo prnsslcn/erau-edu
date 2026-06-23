@@ -13,20 +13,21 @@ export default function StudentSignupPage() {
         {
           name: "name",
           label: "이름",
-          placeholder: "홍길동",
+          icon: "user",
           autoComplete: "name",
         },
         {
           name: "phone",
           label: "전화번호",
+          icon: "phone",
           inputMode: "tel",
-          placeholder: "01012345678",
           autoComplete: "username",
         },
         {
           name: "password",
           label: "비밀번호 (숫자 4자리)",
           type: "password",
+          icon: "lock",
           inputMode: "numeric",
           maxLength: 4,
           autoComplete: "new-password",

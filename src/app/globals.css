@@ -56,11 +56,6 @@
     @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-200;
   }
 
-  /* 밑줄 입력 필드 (배경과 동일색, 테두리 없이 하단 밑줄만) */
-  .neu-underline {
-    @apply w-full rounded-none border-0 border-b-2 border-slate-300 bg-slate-100 px-1 py-2.5 text-[15px] text-slate-700 outline-none transition-colors placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-0;
-  }
-
   /* 튀어나온 기본 버튼 (누르면 살짝 작아짐) */
   .neu-btn {
     @apply rounded-xl bg-slate-100 font-semibold text-slate-700 shadow-[6px_6px_12px_#cbd5e1,-6px_-6px_12px_#ffffff] transition-all hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;

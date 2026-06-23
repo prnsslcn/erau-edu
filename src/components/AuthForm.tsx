@@ -2,12 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { User, Phone, Lock, Mail, type LucideIcon } from "lucide-react";
+
+const ICONS: Record<string, LucideIcon> = {
+  user: User,
+  phone: Phone,
+  lock: Lock,
+  mail: Mail,
+};
 
 export interface AuthField {
   name: string;
   label: string;
   type?: string;
-  placeholder?: string;
+  icon?: keyof typeof ICONS;
   inputMode?: "text" | "numeric" | "tel" | "email";
   maxLength?: number;
   autoComplete?: string;
@@ -73,28 +81,39 @@ export default function AuthForm({
         <p className="mt-1.5 text-sm leading-snug text-slate-500">{subtitle}</p>
       )}
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4">
-        {fields.map((f) => (
-          <div key={f.name}>
-            <label
-              htmlFor={f.name}
-              className="mb-1.5 block text-sm font-medium text-slate-600"
+      <form onSubmit={onSubmit} className="mt-7 space-y-7">
+        {fields.map((f) => {
+          const Icon = ICONS[f.icon ?? "user"];
+          return (
+            <div
+              key={f.name}
+              className="group grid grid-cols-[10%_90%] items-center border-b-2 border-slate-300 transition-colors duration-300 focus-within:border-blue-500"
             >
-              {f.label}
-            </label>
-            <input
-              id={f.name}
-              name={f.name}
-              type={f.type ?? "text"}
-              inputMode={f.inputMode}
-              maxLength={f.maxLength}
-              autoComplete={f.autoComplete}
-              placeholder={f.placeholder}
-              required
-              className="neu-underline"
-            />
-          </div>
-        ))}
+              <div className="flex items-center justify-center text-slate-300 transition-colors duration-300 group-focus-within:text-blue-500">
+                <Icon size={18} />
+              </div>
+              <div className="relative h-[48px]">
+                <input
+                  id={f.name}
+                  name={f.name}
+                  type={f.type ?? "text"}
+                  inputMode={f.inputMode}
+                  maxLength={f.maxLength}
+                  autoComplete={f.autoComplete}
+                  required
+                  placeholder=" "
+                  className="peer absolute inset-0 h-full w-full border-none bg-transparent px-3 pt-4 text-[1.05rem] text-slate-700 outline-none"
+                />
+                <label
+                  htmlFor={f.name}
+                  className="pointer-events-none absolute left-3 top-1.5 text-[13px] font-medium text-blue-500 transition-all duration-300 peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-[17px] peer-placeholder-shown:text-slate-400 peer-focus:top-1.5 peer-focus:translate-y-0 peer-focus:text-[13px] peer-focus:text-blue-500"
+                >
+                  {f.label}
+                </label>
+              </div>
+            </div>
+          );
+        })}
 
         {error && (
           <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">

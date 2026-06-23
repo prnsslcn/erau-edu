@@ -20,14 +20,15 @@ export default async function AdminLoginPage() {
               name: "email",
               label: "이메일",
               type: "email",
+              icon: "mail",
               inputMode: "email",
-              placeholder: "professor@example.com",
               autoComplete: "username",
             },
             {
               name: "password",
               label: "비밀번호",
               type: "password",
+              icon: "lock",
               autoComplete: "current-password",
             },
           ]}

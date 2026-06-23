@@ -13,14 +13,15 @@ export default function StudentLoginPage() {
         {
           name: "phone",
           label: "전화번호",
+          icon: "phone",
           inputMode: "tel",
-          placeholder: "01012345678",
           autoComplete: "username",
         },
         {
           name: "password",
           label: "비밀번호 (숫자 4자리)",
           type: "password",
+          icon: "lock",
           inputMode: "numeric",
           maxLength: 4,
           autoComplete: "current-password",
