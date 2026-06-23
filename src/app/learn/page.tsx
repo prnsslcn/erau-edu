@@ -15,7 +15,10 @@ export default async function LearnHome() {
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">강의 목록</h1>
+        <p className="text-sm font-semibold text-brand">
+          {session.name}님 반갑습니다.
+        </p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight">강의 목록</h1>
         <p className="mt-1 text-sm text-slate-500">
           순서대로 수강하세요. 강의를 완료하면 다음 강의가 열립니다.
           {items.length > 0 && ` (완료 ${completed} / ${items.length})`}
