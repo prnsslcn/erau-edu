@@ -24,13 +24,13 @@ export default async function AdminLayout({
             </Link>
             <nav className="flex items-center gap-4 text-sm">
               <Link href="/admin" className="text-slate-500 transition-colors hover:text-slate-900">
-                진도 대시보드
+                Dashboard
               </Link>
               <Link
                 href="/admin/chapters"
                 className="text-slate-500 transition-colors hover:text-slate-900"
               >
-                강의 관리
+                Courses
               </Link>
             </nav>
           </div>

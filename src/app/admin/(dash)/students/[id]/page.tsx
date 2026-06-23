@@ -66,17 +66,17 @@ export default async function StudentDetailPage({
                     </span>
                     {!c.is_published && (
                       <span className="rounded-full bg-slate-400/10 px-2 py-0.5 text-[11px] text-slate-400">
-                        비공개
+                        Private
                       </span>
                     )}
                     {c.is_published && !c.unlocked && (
                       <span className="rounded-full bg-slate-400/10 px-2 py-0.5 text-[11px] text-slate-500 ring-1 ring-inset ring-slate-300/40">
-                        🔒 잠김
+                        🔒 Locked
                       </span>
                     )}
                     {c.is_published && c.overridden && !c.naturallyUnlocked && (
                       <span className="rounded-full bg-blue-400/15 px-2 py-0.5 text-[11px] font-medium text-brand ring-1 ring-inset ring-blue-400/30">
-                        🔓 수동 해제됨
+                        🔓 Unlocked
                       </span>
                     )}
                   </div>
@@ -104,7 +104,7 @@ export default async function StudentDetailPage({
                           : "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40"
                     }`}
                   >
-                    {p?.completed ? "완료" : p ? "수강 중" : "미시청"}
+                    {p?.completed ? "Done" : p ? "In progress" : "Not started"}
                   </span>
                   {c.is_published && !c.unlocked && (
                     <UnlockToggle

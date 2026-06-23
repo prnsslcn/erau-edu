@@ -34,16 +34,16 @@ export default async function LearnHome() {
           {items.map(({ chapter, completed, unlocked }) => {
             const status = completed
               ? {
-                  label: "완료",
+                  label: "Done",
                   cls: "bg-emerald-400/15 text-emerald-700 ring-1 ring-inset ring-emerald-400/30",
                 }
               : unlocked
                 ? {
-                    label: "수강 가능",
+                    label: "Open",
                     cls: "bg-brand/10 text-brand ring-1 ring-inset ring-brand/20",
                   }
                 : {
-                    label: "잠김",
+                    label: "Locked",
                     cls: "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40",
                   };
 

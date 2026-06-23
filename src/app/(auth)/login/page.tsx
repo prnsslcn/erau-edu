@@ -8,18 +8,18 @@ export default function StudentLoginPage() {
       subtitle="전화번호와 비밀번호 4자리로 로그인하세요."
       endpoint="/api/auth/student/login"
       redirectTo="/learn"
-      submitLabel="로그인"
+      submitLabel="Login"
       fields={[
         {
           name: "phone",
-          label: "전화번호",
+          label: "Phone",
           icon: "phone",
           inputMode: "tel",
           autoComplete: "username",
         },
         {
           name: "password",
-          label: "비밀번호 (숫자 4자리)",
+          label: "Password (4 digits)",
           type: "password",
           icon: "lock",
           inputMode: "numeric",
@@ -31,7 +31,7 @@ export default function StudentLoginPage() {
         <span className="text-slate-500">
           처음이신가요?{" "}
           <Link href="/signup" className="font-semibold text-brand">
-            회원가입
+            Sign Up
           </Link>
         </span>
       }

@@ -27,7 +27,7 @@ export default function LogoutButton({
         "text-sm font-medium text-slate-500 transition hover:text-slate-800 disabled:opacity-50"
       }
     >
-      {loading ? "…" : "로그아웃"}
+      {loading ? "…" : "Logout"}
     </button>
   );
 }

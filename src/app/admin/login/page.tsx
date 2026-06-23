@@ -14,11 +14,11 @@ export default async function AdminLoginPage() {
           subtitle="관리자(교수진) 전용 페이지입니다."
           endpoint="/api/auth/admin/login"
           redirectTo="/admin"
-          submitLabel="로그인"
+          submitLabel="Login"
           fields={[
             {
               name: "email",
-              label: "이메일",
+              label: "Email",
               type: "email",
               icon: "mail",
               inputMode: "email",
@@ -26,7 +26,7 @@ export default async function AdminLoginPage() {
             },
             {
               name: "password",
-              label: "비밀번호",
+              label: "Password",
               type: "password",
               icon: "lock",
               autoComplete: "current-password",

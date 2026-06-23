@@ -26,20 +26,19 @@ export default async function Home() {
             href="/login"
             className="neu-btn-primary px-6 py-3 text-[15px]"
           >
-            학생 로그인
+            Login
           </Link>
           <Link
             href="/signup"
             className="neu-btn px-6 py-3 text-[15px]"
           >
-            회원가입
+            Sign Up
           </Link>
         </div>
 
         <p className="mt-8 text-sm text-slate-400">
-          교수진이신가요?{" "}
           <Link href="/admin/login" className="font-medium text-brand">
-            관리자 로그인
+            Admin
           </Link>
         </p>
       </div>

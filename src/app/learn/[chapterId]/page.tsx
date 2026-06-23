@@ -70,7 +70,7 @@ export default async function ChapterPlayerPage({
       <aside className="mt-6 lg:mt-0">
         <div className="neu-raised sticky top-20 h-full rounded-2xl p-3">
           <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
-            전체 강의
+            All
           </p>
           <ul className="space-y-1">
             {items.map((it) => {

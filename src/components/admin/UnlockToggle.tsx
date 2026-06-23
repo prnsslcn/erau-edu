@@ -41,7 +41,7 @@ export default function UnlockToggle({
           : "neu-btn shrink-0 px-3 py-1.5 text-xs font-medium text-slate-600"
       }
     >
-      {pending ? "처리 중…" : isUnlock ? "🔓 잠금 해제" : "잠금 되돌리기"}
+      {pending ? "…" : isUnlock ? "🔓 Unlock" : "Lock"}
     </button>
   );
 }

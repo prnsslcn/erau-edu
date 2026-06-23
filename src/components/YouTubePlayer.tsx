@@ -188,7 +188,7 @@ export default function YouTubePlayer({
             }`}
           />
           시청 {pct}%
-          {completed && <span className="text-emerald-300">· 완료</span>}
+          {completed && <span className="text-emerald-300">· Done</span>}
         </div>
       </div>
 
@@ -199,7 +199,7 @@ export default function YouTubePlayer({
             시청 진도 {pct}%
             {completed && (
               <span className="ml-2 rounded-full bg-emerald-400/15 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-400/30">
-                완료
+                Done
               </span>
             )}
           </span>
@@ -220,7 +220,7 @@ export default function YouTubePlayer({
           </p>
           {nextHref && (
             <a href={nextHref} className="neu-btn-primary shrink-0 px-4 py-2 text-sm">
-              다음 강의 →
+              Next →
             </a>
           )}
         </div>

@@ -54,10 +54,10 @@ export default async function AdminDashboard() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
-                <th className="px-4 py-3 font-medium">이름</th>
-                <th className="px-4 py-3 font-medium">전화번호</th>
-                <th className="px-4 py-3 font-medium">완료</th>
-                <th className="px-4 py-3 font-medium">진도율</th>
+                <th className="px-4 py-3 font-medium">Name</th>
+                <th className="px-4 py-3 font-medium">Phone</th>
+                <th className="px-4 py-3 font-medium">Done</th>
+                <th className="px-4 py-3 font-medium">Progress</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -90,7 +90,7 @@ export default async function AdminDashboard() {
                       href={`/admin/students/${r.student.id}`}
                       className="text-sm font-medium text-brand hover:underline"
                     >
-                      상세
+                      Detail
                     </Link>
                   </td>
                 </tr>

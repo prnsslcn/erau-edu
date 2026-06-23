@@ -47,7 +47,7 @@ function ChapterForm({
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_120px]">
         <div>
           <label className="mb-1 block text-xs font-medium text-slate-500">
-            제목
+            Title
           </label>
           <input
             name="title"
@@ -59,7 +59,7 @@ function ChapterForm({
         </div>
         <div>
           <label className="mb-1 block text-xs font-medium text-slate-500">
-            순서
+            Order
           </label>
           <input
             name="position"
@@ -127,7 +127,7 @@ function ChapterForm({
           disabled={pending}
           className="neu-btn-primary px-4 py-2 text-sm"
         >
-          {pending ? "저장 중…" : chapter ? "수정 저장" : "강의 추가"}
+          {pending ? "Saving…" : chapter ? "Save" : "Add"}
         </button>
         {onCancel && (
           <button
@@ -135,7 +135,7 @@ function ChapterForm({
             onClick={onCancel}
             className="neu-btn px-4 py-2 text-sm font-medium text-slate-600"
           >
-            취소
+            Cancel
           </button>
         )}
       </div>
@@ -177,7 +177,7 @@ export default function ChapterManager({
             onClick={() => setCreating(true)}
             className="neu-btn-primary px-4 py-2 text-sm"
           >
-            + 새 강의
+            + New
           </button>
         )}
       </div>
@@ -227,7 +227,7 @@ export default function ChapterManager({
                             : "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40"
                         }`}
                       >
-                        {c.is_published ? "공개" : "비공개"}
+                        {c.is_published ? "Public" : "Private"}
                       </span>
                     </div>
                     <p className="mt-1 truncate text-xs text-slate-400">
@@ -240,13 +240,13 @@ export default function ChapterManager({
                       onClick={() => setEditingId(c.id)}
                       className="neu-btn px-3 py-1.5 text-sm text-slate-600"
                     >
-                      수정
+                      Edit
                     </button>
                     <button
                       onClick={() => onDelete(c)}
                       className="neu-btn px-3 py-1.5 text-sm text-red-500"
                     >
-                      삭제
+                      Delete
                     </button>
                   </div>
                 </div>
