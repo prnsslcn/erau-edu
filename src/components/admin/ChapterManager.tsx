@@ -37,12 +37,12 @@ function ChapterForm({
     });
   }
 
-  const input = "glass-input text-sm";
+  const input = "neu-input text-sm";
 
   return (
     <form
       onSubmit={onSubmit}
-      className="glass-soft space-y-3 rounded-2xl p-4"
+      className="neu-raised-sm space-y-3 rounded-2xl p-4"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_120px]">
         <div>
@@ -125,7 +125,7 @@ function ChapterForm({
         <button
           type="submit"
           disabled={pending}
-          className="glass-btn-primary px-4 py-2 text-sm"
+          className="neu-btn-primary px-4 py-2 text-sm"
         >
           {pending ? "저장 중…" : chapter ? "수정 저장" : "강의 추가"}
         </button>
@@ -133,7 +133,7 @@ function ChapterForm({
           <button
             type="button"
             onClick={onCancel}
-            className="rounded-xl border border-white/70 bg-white/50 px-4 py-2 text-sm font-medium text-slate-600 backdrop-blur-sm transition hover:bg-white/70"
+            className="neu-btn px-4 py-2 text-sm font-medium text-slate-600"
           >
             취소
           </button>
@@ -169,13 +169,13 @@ export default function ChapterManager({
   }
 
   return (
-    <div className="glass-panel space-y-6 rounded-3xl p-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">강의 관리</h1>
         {!creating && (
           <button
             onClick={() => setCreating(true)}
-            className="glass-btn-primary px-4 py-2 text-sm"
+            className="neu-btn-primary px-4 py-2 text-sm"
           >
             + 새 강의
           </button>
@@ -194,13 +194,13 @@ export default function ChapterManager({
       )}
 
       {chapters.length === 0 && !creating ? (
-        <p className="glass-soft rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="neu-inset rounded-2xl p-8 text-center text-sm text-slate-400">
           아직 등록된 강의가 없습니다. "새 강의"로 추가하세요.
         </p>
       ) : (
         <ul className="space-y-3">
           {chapters.map((c) => (
-            <li key={c.id} className="glass-soft rounded-2xl p-4">
+            <li key={c.id} className="neu-raised-sm rounded-2xl p-4">
               {editingId === c.id ? (
                 <ChapterForm
                   chapter={c}
@@ -238,13 +238,13 @@ export default function ChapterManager({
                   <div className="flex shrink-0 gap-2">
                     <button
                       onClick={() => setEditingId(c.id)}
-                      className="rounded-xl border border-white/70 bg-white/50 px-3 py-1.5 text-sm text-slate-600 backdrop-blur-sm transition hover:bg-white/70"
+                      className="neu-btn px-3 py-1.5 text-sm text-slate-600"
                     >
                       수정
                     </button>
                     <button
                       onClick={() => onDelete(c)}
-                      className="rounded-xl border border-red-200/70 bg-red-50/40 px-3 py-1.5 text-sm text-red-600 backdrop-blur-sm transition hover:bg-red-50/80"
+                      className="neu-btn px-3 py-1.5 text-sm text-red-500"
                     >
                       삭제
                     </button>

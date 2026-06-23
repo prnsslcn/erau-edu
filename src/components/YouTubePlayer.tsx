@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import GlassProgress from "@/components/GlassProgress";
+import NeuProgress from "@/components/NeuProgress";
 
 // 최소한의 YouTube IFrame API 타입
 interface YTPlayer {
@@ -174,27 +174,26 @@ export default function YouTubePlayer({
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-2xl bg-black shadow-xl shadow-blue-900/10 ring-1 ring-white/20">
-        <div className="aspect-video w-full">
+      {/* 튀어나온 뉴모피즘 영상 프레임 */}
+      <div className="neu-raised relative rounded-2xl p-3">
+        <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
           <div ref={mountRef} className="h-full w-full" />
         </div>
 
-        {/* 영상 위 플로팅 글래스 진도 칩 (컨트롤 방해 없도록 비클릭) */}
-        <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded-full border border-white/40 bg-white/25 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-black/20 backdrop-blur-md">
+        {/* 영상 위 진도 칩 (컨트롤 방해 없도록 비클릭, 솔리드) */}
+        <div className="pointer-events-none absolute left-5 top-5 flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-100 shadow-md">
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              completed ? "bg-emerald-300" : "bg-sky-300"
-            } shadow-[0_0_8px] ${
-              completed ? "shadow-emerald-300" : "shadow-sky-300"
+              completed ? "bg-emerald-400" : "bg-sky-400"
             }`}
           />
           시청 {pct}%
-          {completed && <span className="text-emerald-200">· 완료</span>}
+          {completed && <span className="text-emerald-300">· 완료</span>}
         </div>
       </div>
 
-      {/* 글래스 진도 패널 */}
-      <div className="glass-soft rounded-2xl p-4">
+      {/* 진도 패널 */}
+      <div className="neu-raised-sm rounded-2xl p-4">
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-slate-700">
             시청 진도 {pct}%
@@ -209,21 +208,18 @@ export default function YouTubePlayer({
           </span>
         </div>
         <div className="mt-3">
-          <GlassProgress percent={pct} className="h-2.5" />
+          <NeuProgress percent={pct} className="h-2.5" />
         </div>
       </div>
 
       {justCompleted && (
-        <div className="flex items-center justify-between gap-3 rounded-2xl border border-emerald-300/50 bg-emerald-50/70 px-4 py-3 shadow-lg shadow-emerald-500/10 backdrop-blur-md">
-          <p className="text-sm font-medium text-emerald-800">
+        <div className="neu-raised-sm flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+          <p className="text-sm font-medium text-emerald-700">
             이 강의를 완료했습니다.{" "}
             {nextHref ? "다음 강의가 열렸습니다." : "모든 강의를 마쳤습니다."}
           </p>
           {nextHref && (
-            <a
-              href={nextHref}
-              className="shrink-0 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-emerald-600/25 transition hover:opacity-90"
-            >
+            <a href={nextHref} className="neu-btn-primary shrink-0 px-4 py-2 text-sm">
               다음 강의 →
             </a>
           )}

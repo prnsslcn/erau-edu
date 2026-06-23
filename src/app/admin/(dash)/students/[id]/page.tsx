@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getStudentDetail } from "@/lib/db/progress";
-import GlassProgress from "@/components/GlassProgress";
+import NeuProgress from "@/components/NeuProgress";
 import UnlockToggle from "@/components/admin/UnlockToggle";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +25,7 @@ export default async function StudentDetailPage({
   const completed = chapters.filter((c) => c.progress?.completed).length;
 
   return (
-    <div className="glass-panel space-y-6 rounded-3xl p-8">
+    <div className="space-y-6">
       <div>
         <Link href="/admin" className="text-sm text-brand hover:underline">
           ← 대시보드
@@ -39,7 +39,7 @@ export default async function StudentDetailPage({
       </div>
 
       {chapters.length === 0 ? (
-        <p className="glass-soft rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="neu-inset rounded-2xl p-8 text-center text-sm text-slate-400">
           등록된 강의가 없습니다.
         </p>
       ) : (
@@ -54,7 +54,7 @@ export default async function StudentDetailPage({
             return (
               <li
                 key={c.id}
-                className="glass-soft flex items-center justify-between gap-4 rounded-2xl px-4 py-3.5"
+                className="neu-raised-sm flex items-center justify-between gap-4 rounded-2xl px-4 py-3.5"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
@@ -88,7 +88,7 @@ export default async function StudentDetailPage({
                       </p>
                       {dur > 0 && (
                         <div className="mt-2 max-w-xs">
-                          <GlassProgress percent={pct} className="h-1.5" />
+                          <NeuProgress percent={pct} className="h-1.5" />
                         </div>
                       )}
                     </>

@@ -114,9 +114,12 @@ SESSION_SECRET=...                    # 세션 JWT 서명 (64 hex)
 ```
 `.env.example` 참고. `src/lib/supabase.ts`는 `server-only`로 클라이언트 번들 유입을 차단한다.
 
-## 디자인 톤
-- 밝고 깔끔한 교육용 톤(라이트). 브랜드 색 `--brand`(ERAU 블루 `#0a4d8c`).
-- 한국어: `word-break: keep-all`, 자연스러운 합니다체.
+## 디자인 톤 — 뉴모피즘(Soft UI)
+- 배경과 컴포넌트가 동일한 단색 `bg-slate-100`. 그라데이션/블롭/`backdrop-blur`/투명 배경 사용 금지.
+- 공통 토큰(`globals.css`): `.neu-raised`(튀어나온 패널), `.neu-raised-sm`(작은 카드/행), `.neu-soft`/`.neu-inset`(파인 요소), `.neu-input`(파인 입력), `.neu-btn`/`.neu-btn-primary`, `.neu-header`.
+- 그림자: 좌상단 흰빛(`#ffffff`) + 우하단 회색(`#cbd5e1`) 커스텀 그림자. 파인 요소는 `inset`.
+- 포인트 컬러: blue-500(`--brand`). 진도바([NeuProgress](src/components/NeuProgress.tsx))는 파인 트랙 + blue-500 채움.
+- 텍스트: 타이틀 `text-slate-700`, 서브 `text-slate-500`. 한국어 `word-break: keep-all`, 자연스러운 합니다체.
 
 ## 알려진 한계 / 향후 작업
 - **진도 부정 방지**: 현재 MVP는 클라이언트가 보고한 `watched_seconds`를 신뢰. 작정한 우회(직접 API 호출) 가능. 필요 시 서버 측 구간 검증 강화.

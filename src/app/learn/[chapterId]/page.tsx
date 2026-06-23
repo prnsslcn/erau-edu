@@ -28,8 +28,8 @@ export default async function ChapterPlayerPage({
 
   return (
     <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-6">
-      {/* 본문 — 플레이어 (글래스 프레임) */}
-      <div className="glass-panel space-y-5 rounded-3xl p-5 sm:p-6">
+      {/* 본문 — 플레이어 */}
+      <div className="space-y-5">
         <div>
           <Link href="/learn" className="text-sm text-brand hover:underline">
             ← 강의 목록
@@ -59,7 +59,7 @@ export default async function ChapterPlayerPage({
             href={chapter.material_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="glass-soft inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 transition hover:bg-white/55"
+            className="neu-btn inline-flex items-center gap-2 px-4 py-2.5 text-sm"
           >
             <span aria-hidden>📄</span> 강의자료 열기
           </a>
@@ -68,7 +68,7 @@ export default async function ChapterPlayerPage({
 
       {/* 사이드바 — 강의 목록 */}
       <aside className="mt-6 lg:mt-0">
-        <div className="glass-panel sticky top-20 h-full rounded-2xl p-3">
+        <div className="neu-raised sticky top-20 h-full rounded-2xl p-3">
           <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
             전체 강의
           </p>
@@ -82,19 +82,19 @@ export default async function ChapterPlayerPage({
                     active
                       ? "bg-brand/10 font-semibold text-brand ring-1 ring-inset ring-brand/20"
                       : it.unlocked
-                        ? "text-slate-600 glass-hover"
+                        ? "text-slate-600"
                         : "text-slate-400"
                   }`}
                 >
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
                       it.completed
-                        ? "bg-emerald-400/20 text-emerald-600"
+                        ? "bg-emerald-100 text-emerald-600"
                         : active
-                          ? "bg-brand text-white"
+                          ? "bg-blue-500 text-white"
                           : it.unlocked
-                            ? "bg-slate-200/70 text-slate-500"
-                            : "bg-slate-200/50 text-slate-400"
+                            ? "bg-slate-200 text-slate-500"
+                            : "bg-slate-200 text-slate-400"
                     }`}
                   >
                     {it.completed ? "✓" : it.unlocked ? c.position + 1 : "🔒"}

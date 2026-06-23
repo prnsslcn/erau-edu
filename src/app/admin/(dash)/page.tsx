@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getDashboardSummary } from "@/lib/db/progress";
-import GlassProgress from "@/components/GlassProgress";
+import NeuProgress from "@/components/NeuProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -27,35 +27,33 @@ export default async function AdminDashboard() {
         </p>
       </div>
 
-      {/* KPI 카드 — 하나의 글래스 패널 안에 */}
-      <div className="glass-panel rounded-3xl p-5">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          {kpis.map((k) => (
-            <div
-              key={k.label}
-              className="glass-soft rounded-2xl p-5 transition-transform duration-200 hover:-translate-y-2"
-            >
-              <p className="text-sm text-slate-500">{k.label}</p>
-              <p className="mt-1.5 text-3xl font-bold tracking-tight text-slate-800">
-                {k.value}
-                <span className="ml-1 text-base font-medium text-slate-400">
-                  {k.unit}
-                </span>
-              </p>
-            </div>
-          ))}
-        </div>
+      {/* KPI 카드 — 각각 튀어나온 뉴모피즘 카드 */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+        {kpis.map((k) => (
+          <div
+            key={k.label}
+            className="neu-raised-sm rounded-2xl p-5 transition-transform duration-200 hover:-translate-y-1"
+          >
+            <p className="text-sm text-slate-500">{k.label}</p>
+            <p className="mt-1.5 text-3xl font-bold tracking-tight text-slate-700">
+              {k.value}
+              <span className="ml-1 text-base font-medium text-slate-400">
+                {k.unit}
+              </span>
+            </p>
+          </div>
+        ))}
       </div>
 
       {rows.length === 0 ? (
-        <p className="glass-panel rounded-2xl p-8 text-center text-sm text-slate-400">
+        <p className="neu-inset rounded-2xl p-8 text-center text-sm text-slate-400">
           아직 가입한 학생이 없습니다.
         </p>
       ) : (
-        <div className="glass-panel overflow-hidden rounded-2xl">
+        <div className="neu-raised overflow-hidden rounded-2xl">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/50 bg-white/30 text-left text-xs text-slate-500">
+              <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
                 <th className="px-4 py-3 font-medium">이름</th>
                 <th className="px-4 py-3 font-medium">전화번호</th>
                 <th className="px-4 py-3 font-medium">완료</th>
@@ -67,7 +65,7 @@ export default async function AdminDashboard() {
               {rows.map((r) => (
                 <tr
                   key={r.student.id}
-                  className="border-b border-white/30 transition-colors last:border-0 hover:bg-white/40"
+                  className="border-b border-slate-200/70 transition-colors last:border-0 hover:bg-slate-200/40"
                 >
                   <td className="px-4 py-3 font-medium text-slate-700">
                     {r.student.name}
@@ -78,7 +76,7 @@ export default async function AdminDashboard() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
-                      <GlassProgress
+                      <NeuProgress
                         percent={r.percent}
                         className="h-1.5 w-24"
                       />

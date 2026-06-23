@@ -37,8 +37,8 @@ export default function UnlockToggle({
       disabled={pending}
       className={
         isUnlock
-          ? "shrink-0 rounded-xl bg-brand px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-blue-500/30 transition hover:opacity-90 disabled:opacity-50"
-          : "shrink-0 rounded-xl border border-white/60 bg-white/40 px-3 py-1.5 text-xs font-medium text-slate-600 backdrop-blur-sm transition hover:bg-white/60 disabled:opacity-50"
+          ? "neu-btn-primary shrink-0 px-3 py-1.5 text-xs"
+          : "neu-btn shrink-0 px-3 py-1.5 text-xs font-medium text-slate-600"
       }
     >
       {pending ? "처리 중…" : isUnlock ? "🔓 잠금 해제" : "잠금 되돌리기"}

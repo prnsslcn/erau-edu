@@ -67,7 +67,7 @@ export default function AuthForm({
   }
 
   return (
-    <div className="glass-panel rounded-3xl p-8">
+    <div className="neu-raised rounded-3xl p-8">
       <h1 className="text-xl font-bold tracking-tight">{title}</h1>
       {subtitle && (
         <p className="mt-1.5 text-sm leading-snug text-slate-500">{subtitle}</p>
@@ -91,13 +91,13 @@ export default function AuthForm({
               autoComplete={f.autoComplete}
               placeholder={f.placeholder}
               required
-              className="glass-input"
+              className="neu-input"
             />
           </div>
         ))}
 
         {error && (
-          <p className="rounded-xl border border-red-200/60 bg-red-50/70 px-3 py-2 text-sm text-red-600 backdrop-blur-sm">
+          <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-600 shadow-[inset_3px_3px_6px_#e5c0c0,inset_-3px_-3px_6px_#ffffff]">
             {error}
           </p>
         )}
@@ -105,7 +105,7 @@ export default function AuthForm({
         <button
           type="submit"
           disabled={loading}
-          className="glass-btn-primary w-full py-2.5 text-[15px]"
+          className="neu-btn-primary w-full py-2.5 text-[15px]"
         >
           {loading ? "처리 중…" : submitLabel}
         </button>
