@@ -17,7 +17,7 @@ export default async function AdminLayout({
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
           <div className="flex items-center gap-6">
             <Link href="/admin" className="font-bold tracking-tight">
-              ERAU 관리자
+              ERAU Edu · 관리자
             </Link>
             <nav className="flex items-center gap-4 text-sm">
               <Link href="/admin" className="text-slate-500 transition-colors hover:text-slate-900">

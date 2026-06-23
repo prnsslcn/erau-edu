@@ -16,7 +16,7 @@ export default async function LearnLayout({
       <header className="neu-header sticky top-0 z-10">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
           <Link href="/learn" className="font-bold tracking-tight">
-            ERAU 입학 전 교육
+            ERAU Edu
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-slate-500">{session.name} 님</span>
