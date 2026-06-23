@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, Phone, Lock, Mail, type LucideIcon } from "lucide-react";
+import { User, Phone, Lock, Mail, Plane, type LucideIcon } from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   user: User,
@@ -76,6 +76,9 @@ export default function AuthForm({
 
   return (
     <div className="neu-raised rounded-3xl p-8">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff]">
+        <Plane size={24} className="-rotate-45" />
+      </div>
       <h1 className="text-xl font-bold tracking-tight">{title}</h1>
       {subtitle && (
         <p className="mt-1.5 text-sm leading-snug text-slate-500">{subtitle}</p>
