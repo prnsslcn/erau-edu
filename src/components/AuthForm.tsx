@@ -91,7 +91,7 @@ export default function AuthForm({
               autoComplete={f.autoComplete}
               placeholder={f.placeholder}
               required
-              className="neu-input"
+              className="neu-underline"
             />
           </div>
         ))}
