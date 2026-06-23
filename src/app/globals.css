@@ -27,6 +27,18 @@
     font-family: var(--font-sans);
     word-break: keep-all;
   }
+
+  /* Chrome/Safari 자동완성 배경 제거 — 표면색(slate-100)으로 덮고 글자색 고정 */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-text-fill-color: #334155; /* slate-700 */
+    -webkit-box-shadow: 0 0 0 1000px #f1f5f9 inset; /* slate-100 */
+    box-shadow: 0 0 0 1000px #f1f5f9 inset;
+    caret-color: #334155;
+    transition: background-color 9999s ease-in-out 0s;
+  }
 }
 
 /* ───── 뉴모피즘(Soft UI) 공통 클래스 ───── */
