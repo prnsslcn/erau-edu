@@ -11,7 +11,7 @@ export default function NeuProgress({
   tone?: "blue" | "green";
 }) {
   const p = Math.max(0, Math.min(100, Math.round(percent)));
-  const fill = tone === "green" ? "bg-lime-400" : "bg-blue-500";
+  const fill = tone === "green" ? "bg-lime-500" : "bg-blue-500";
 
   return (
     <div
