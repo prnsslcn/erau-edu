@@ -27,10 +27,10 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
             <button
               key={v.id}
               onClick={() => setActive(i)}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm transition-all ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm transition-colors ${
                 i === active
-                  ? "neu-btn-primary"
-                  : "neu-btn text-slate-600"
+                  ? "bg-blue-500 text-white"
+                  : "bg-slate-200/60 text-slate-600 hover:bg-slate-200"
               }`}
             >
               <span
@@ -39,7 +39,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
                     ? "bg-emerald-100 text-emerald-600"
                     : i === active
                       ? "bg-white/25 text-white"
-                      : "bg-slate-200 text-slate-400"
+                      : "bg-slate-300/70 text-slate-500"
                 }`}
               >
                 {v.completed ? "✓" : i + 1}

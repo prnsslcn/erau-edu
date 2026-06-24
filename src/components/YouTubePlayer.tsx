@@ -171,12 +171,12 @@ export default function YouTubePlayer({
     duration > 0 ? Math.min(100, Math.round((watchedCount / duration) * 100)) : 0;
 
   return (
-    <div className="space-y-3">
-      <div className="neu-raised relative rounded-2xl p-3">
+    <div className="neu-raised space-y-3 rounded-2xl p-3">
+      <div className="relative">
         <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
           <div ref={mountRef} className="h-full w-full" />
         </div>
-        <div className="pointer-events-none absolute left-5 top-5 flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-100">
+        <div className="pointer-events-none absolute left-3 top-3 flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 text-xs font-semibold text-slate-100">
           <span
             className={`h-1.5 w-1.5 rounded-full ${
               completed ? "bg-emerald-400" : "bg-sky-400"
@@ -187,7 +187,7 @@ export default function YouTubePlayer({
         </div>
       </div>
 
-      <div className="mx-auto w-[90%]">
+      <div className="px-1 pb-1">
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-slate-700">
             시청 진도 {pct}%
