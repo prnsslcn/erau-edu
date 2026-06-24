@@ -17,7 +17,7 @@ export default async function Home() {
         <svg
           viewBox="0 0 257.24 307"
           fill="currentColor"
-          className="h-[85vh] w-auto rotate-[25deg] text-blue-200"
+          className="h-[120vh] w-auto rotate-[25deg] text-blue-200"
         >
           <path
             fillRule="evenodd"
@@ -40,12 +40,7 @@ export default async function Home() {
               EduPrep
             </span>
           </h1>
-          <p className="mt-6 text-[15px] leading-relaxed text-slate-500">
-            강의 영상을 순서대로 수강하고, 챕터를 완료하면 다음 강의가 열립니다.
-            소속 학생을 위한 비공개 교육 페이지입니다.
-          </p>
-
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/login" className="neu-btn-primary px-7 py-3 text-[15px]">
               Login
             </Link>
@@ -55,7 +50,6 @@ export default async function Home() {
           </div>
 
           <p className="mt-7 text-sm text-slate-400">
-            교수진이신가요?{" "}
             <Link href="/admin/login" className="font-medium text-brand">
               Admin
             </Link>
