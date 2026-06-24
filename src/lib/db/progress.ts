@@ -35,9 +35,8 @@ export async function getDashboardSummary(): Promise<{
     ]);
 
   const publishedIds = new Set((chapters ?? []).map((c) => c.id));
-  const totalChapters = publishedIds.size;
 
-  // 공개 챕터별 영상 id 목록
+  // 공개 챕터별 영상 id 목록 (영상이 있는 챕터만 = 진도 대상)
   const videoIdsByChapter = new Map<string, string[]>();
   for (const v of (videos ?? []) as Pick<Video, "id" | "chapter_id">[]) {
     if (!publishedIds.has(v.chapter_id)) continue;
@@ -45,6 +44,8 @@ export async function getDashboardSummary(): Promise<{
     arr.push(v.id);
     videoIdsByChapter.set(v.chapter_id, arr);
   }
+  // 자료 전용 챕터는 진도에서 제외 → 분모는 영상 챕터 수
+  const totalChapters = videoIdsByChapter.size;
 
   // 학생별 완료 영상 집합
   const completedByStudent = new Map<string, Set<string>>();
@@ -89,6 +90,7 @@ export interface StudentDetailChapter extends Chapter {
   unlocked: boolean;
   overridden: boolean;
   naturallyUnlocked: boolean;
+  materialsOnly: boolean;
 }
 
 export interface StudentDetail {
@@ -139,8 +141,13 @@ export async function getStudentDetail(
   let prevCompleted = true;
   for (const c of allChapters.filter((c) => c.is_published)) {
     const vids = videosByChapter.get(c.id) ?? [];
-    const completed = vids.every((v) => progressByVideo.get(v.id)?.completed);
     const overridden = overrideByChapter.get(c.id) ?? false;
+    // 자료 전용 챕터: 항상 열림, 잠금 체인 제외
+    if (vids.length === 0) {
+      lockMap.set(c.id, { unlocked: true, overridden, naturallyUnlocked: true });
+      continue;
+    }
+    const completed = vids.every((v) => progressByVideo.get(v.id)?.completed);
     const naturallyUnlocked = prevCompleted;
     lockMap.set(c.id, {
       unlocked: naturallyUnlocked || overridden,
@@ -174,6 +181,7 @@ export async function getStudentDetail(
       unlocked: lock?.unlocked ?? false,
       overridden: lock?.overridden ?? false,
       naturallyUnlocked: lock?.naturallyUnlocked ?? false,
+      materialsOnly: vids.length === 0,
     };
   });
 

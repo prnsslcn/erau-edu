@@ -16,9 +16,10 @@ export interface StudentVideo {
 export interface StudentChapter {
   chapter: Chapter;
   videos: StudentVideo[];
-  completed: boolean; // 챕터의 모든 영상 완료 (영상 0개면 완료로 간주)
-  unlocked: boolean; // 이전 챕터 완료 또는 교수진 수동 해제
+  completed: boolean; // 영상 챕터의 모든 영상 완료 (자료 챕터는 false)
+  unlocked: boolean; // 이전 영상 챕터 완료 또는 수동 해제 (자료 챕터는 항상 true)
   overridden: boolean;
+  materialsOnly: boolean; // 영상이 없는 자료 전용 챕터 (잠금 체인에서 제외)
 }
 
 async function loadStudentData(studentId: string) {
@@ -81,18 +82,31 @@ export async function getStudentChapters(
   const { chapters, videosByChapter, progressByVideo, overrideByChapter } =
     await loadStudentData(studentId);
 
-  let prevCompleted = true; // 첫 챕터는 항상 열림
+  let prevCompleted = true; // 첫 영상 챕터는 항상 열림
   return chapters.map((chapter) => {
     const videos = buildStudentVideos(
       videosByChapter.get(chapter.id) ?? [],
       progressByVideo,
     );
-    // 영상이 없으면 완료로 간주(다음 챕터를 막지 않도록)
-    const completed = videos.every((v) => v.completed);
+    const materialsOnly = videos.length === 0;
     const overridden = overrideByChapter.get(chapter.id) ?? false;
+
+    // 자료 전용 챕터: 항상 열림, 잠금 체인에 영향 없음
+    if (materialsOnly) {
+      return {
+        chapter,
+        videos,
+        completed: false,
+        unlocked: true,
+        overridden,
+        materialsOnly: true,
+      };
+    }
+
+    const completed = videos.every((v) => v.completed);
     const unlocked = prevCompleted || overridden;
-    prevCompleted = completed;
-    return { chapter, videos, completed, unlocked, overridden };
+    prevCompleted = completed; // 영상 챕터만 체인을 진행시킴
+    return { chapter, videos, completed, unlocked, overridden, materialsOnly: false };
   });
 }
 

@@ -17,7 +17,9 @@ export default async function StudentDetailPage({
 
   const { student, chapters } = detail;
   const completed = chapters.filter((c) => c.is_published && c.completed).length;
-  const publishedCount = chapters.filter((c) => c.is_published).length;
+  const publishedCount = chapters.filter(
+    (c) => c.is_published && !c.materialsOnly,
+  ).length;
 
   return (
     <div className="space-y-6">
@@ -43,11 +45,13 @@ export default async function StudentDetailPage({
             const anyStarted = c.videos.some(
               (v) => v.completed || v.watchedSeconds > 0,
             );
-            const status = c.completed
-              ? { label: "Done", cls: "bg-emerald-400/15 text-emerald-700 ring-emerald-400/30" }
-              : anyStarted
-                ? { label: "In progress", cls: "bg-amber-400/15 text-amber-700 ring-amber-400/30" }
-                : { label: "Not started", cls: "bg-slate-400/10 text-slate-400 ring-slate-300/40" };
+            const status = c.materialsOnly
+              ? { label: "Materials", cls: "bg-blue-400/10 text-brand ring-blue-400/30" }
+              : c.completed
+                ? { label: "Done", cls: "bg-emerald-400/15 text-emerald-700 ring-emerald-400/30" }
+                : anyStarted
+                  ? { label: "In progress", cls: "bg-amber-400/15 text-amber-700 ring-amber-400/30" }
+                  : { label: "Not started", cls: "bg-slate-400/10 text-slate-400 ring-slate-300/40" };
 
             return (
               <li key={c.id} className="neu-raised-sm rounded-2xl px-4 py-3.5">

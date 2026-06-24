@@ -31,22 +31,27 @@ export default async function LearnHome() {
         </p>
       ) : (
         <ul className="space-y-3">
-          {items.map(({ chapter, videos, completed, unlocked }) => {
+          {items.map(({ chapter, videos, completed, unlocked, materialsOnly }) => {
             const doneVideos = videos.filter((v) => v.completed).length;
-            const status = completed
+            const status = materialsOnly
               ? {
-                  label: "Done",
-                  cls: "bg-emerald-400/15 text-emerald-700 ring-1 ring-inset ring-emerald-400/30",
+                  label: "Materials",
+                  cls: "bg-blue-400/10 text-brand ring-1 ring-inset ring-blue-400/30",
                 }
-              : unlocked
+              : completed
                 ? {
-                    label: "Open",
-                    cls: "bg-brand/10 text-brand ring-1 ring-inset ring-brand/20",
+                    label: "Done",
+                    cls: "bg-emerald-400/15 text-emerald-700 ring-1 ring-inset ring-emerald-400/30",
                   }
-                : {
-                    label: "Locked",
-                    cls: "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40",
-                  };
+                : unlocked
+                  ? {
+                      label: "Open",
+                      cls: "bg-brand/10 text-brand ring-1 ring-inset ring-brand/20",
+                    }
+                  : {
+                      label: "Locked",
+                      cls: "bg-slate-400/10 text-slate-400 ring-1 ring-inset ring-slate-300/40",
+                    };
 
             const inner = (
               <div
@@ -68,11 +73,13 @@ export default async function LearnHome() {
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-slate-500">
-                    {unlocked
-                      ? videos.length > 0
-                        ? `영상 ${doneVideos} / ${videos.length} 완료${chapter.description ? ` · ${chapter.description}` : ""}`
-                        : chapter.description || "강의를 시청하세요."
-                      : "이전 강의를 완료하면 열립니다."}
+                    {materialsOnly
+                      ? `강의 자료${chapter.description ? ` · ${chapter.description}` : ""}`
+                      : unlocked
+                        ? videos.length > 0
+                          ? `영상 ${doneVideos} / ${videos.length} 완료${chapter.description ? ` · ${chapter.description}` : ""}`
+                          : chapter.description || "강의를 시청하세요."
+                        : "이전 강의를 완료하면 열립니다."}
                   </p>
                 </div>
                 <span

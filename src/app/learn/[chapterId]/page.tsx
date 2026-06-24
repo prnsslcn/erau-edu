@@ -160,7 +160,13 @@ export default async function ChapterPlayerPage({
                           : "bg-slate-200 text-slate-400"
                     }`}
                   >
-                    {it.completed ? "✓" : it.unlocked ? c.position + 1 : "🔒"}
+                    {it.materialsOnly
+                      ? "📄"
+                      : it.completed
+                        ? "✓"
+                        : it.unlocked
+                          ? c.position + 1
+                          : "🔒"}
                   </span>
                   <span className="truncate">{c.title}</span>
                 </div>
