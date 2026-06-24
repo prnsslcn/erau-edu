@@ -4,18 +4,21 @@
 export default function NeuProgress({
   percent,
   className = "h-3",
+  tone = "blue",
 }: {
   percent: number;
   className?: string;
+  tone?: "blue" | "green";
 }) {
   const p = Math.max(0, Math.min(100, Math.round(percent)));
+  const fill = tone === "green" ? "bg-lime-400" : "bg-blue-500";
 
   return (
     <div
       className={`relative overflow-hidden rounded-full bg-slate-200 ${className}`}
     >
       <div
-        className="h-full rounded-full bg-blue-500 transition-[width] duration-500 ease-out"
+        className={`h-full rounded-full ${fill} transition-[width] duration-500 ease-out`}
         style={{ width: `${p}%` }}
       />
     </div>

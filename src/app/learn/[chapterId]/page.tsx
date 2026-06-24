@@ -5,6 +5,7 @@ import { getStudentChapters } from "@/lib/db/learn";
 import { getServiceClient } from "@/lib/supabase";
 import type { Material } from "@/lib/db/types";
 import ChapterVideos from "@/components/ChapterVideos";
+import NeuProgress from "@/components/NeuProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +61,19 @@ export default async function ChapterPlayerPage({
             </p>
           )}
           {videos.length > 0 && (
-            <p className="mt-1 text-xs text-slate-400">
-              영상 {doneCount} / {videos.length} 완료 · 자유 시청
-            </p>
+            <div className="mt-3 max-w-xs">
+              <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
+                <span>
+                  영상 {doneCount} / {videos.length} 완료
+                </span>
+                <span>자유 시청</span>
+              </div>
+              <NeuProgress
+                percent={(doneCount / videos.length) * 100}
+                tone="green"
+                className="h-2"
+              />
+            </div>
           )}
         </div>
 
