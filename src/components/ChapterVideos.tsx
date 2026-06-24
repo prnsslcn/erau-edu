@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import YouTubePlayer from "@/components/YouTubePlayer";
 import NeuProgress from "@/components/NeuProgress";
@@ -21,6 +21,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
   const multi = videos.length > 1;
   // Clip이 많으면(>8) 기본 접힘
   const [open, setOpen] = useState(videos.length <= 8);
+  const chipsRef = useRef<HTMLDivElement>(null);
 
   const current = videos[active];
   const done = videos.filter((v) => v.completed).length;
@@ -57,33 +58,38 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
         )}
       </div>
 
-      {/* 토글 펼침 시 칩 목록 */}
-      {multi && open && (
-        <div className="flex flex-wrap gap-2">
-          {videos.map((v, i) => (
-            <button
-              key={v.id}
-              onClick={() => setActive(i)}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff] transition-shadow ${
-                i === active
-                  ? "bg-blue-500 text-white"
-                  : "bg-slate-100 text-slate-600 hover:shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff,inset_2px_2px_5px_#dbe2ec,inset_-2px_-2px_5px_#ffffff]"
-              }`}
-            >
-              <span
-                className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold ${
-                  v.completed
-                    ? "bg-slate-500 text-white"
-                    : i === active
-                      ? "bg-white/25 text-white"
-                      : "bg-slate-300/70 text-slate-500"
+      {/* 토글 펼침 시 칩 목록 — 블라인드(부드러운 max-height) */}
+      {multi && (
+        <div
+          className="overflow-hidden transition-[max-height] duration-500 ease-out"
+          style={{ maxHeight: open ? (chipsRef.current?.scrollHeight ?? 1000) : 0 }}
+        >
+          <div ref={chipsRef} className="flex flex-wrap gap-2 pb-1">
+            {videos.map((v, i) => (
+              <button
+                key={v.id}
+                onClick={() => setActive(i)}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff] transition-shadow ${
+                  i === active
+                    ? "bg-blue-500 text-white"
+                    : "bg-slate-100 text-slate-600 hover:shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff,inset_2px_2px_5px_#dbe2ec,inset_-2px_-2px_5px_#ffffff]"
                 }`}
               >
-                {v.completed ? "✓" : i + 1}
-              </span>
-              {v.title || `Clip ${i + 1}`}
-            </button>
-          ))}
+                <span
+                  className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold ${
+                    v.completed
+                      ? "bg-slate-500 text-white"
+                      : i === active
+                        ? "bg-white/25 text-white"
+                        : "bg-slate-300/70 text-slate-500"
+                  }`}
+                >
+                  {v.completed ? "✓" : i + 1}
+                </span>
+                {v.title || `Clip ${i + 1}`}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
