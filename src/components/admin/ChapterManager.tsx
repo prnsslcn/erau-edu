@@ -127,7 +127,7 @@ function ChapterForm({
   );
 }
 
-// ─────────────── 클립 관리 ───────────────
+// ─────────────── Clip 관리 ───────────────
 function VideoSection({
   chapterId,
   videos,
@@ -164,7 +164,7 @@ function VideoSection({
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-slate-500">
-        클립 ({videos.length})
+        Clip ({videos.length})
       </p>
       {videos.length > 0 && (
         <ul className="space-y-1.5">
@@ -200,7 +200,7 @@ function VideoSection({
         />
         <input
           name="title"
-          placeholder="클립 제목 (선택)"
+          placeholder="Clip 제목 (선택)"
           className={`${inputCls} w-40`}
         />
         <button
@@ -208,7 +208,7 @@ function VideoSection({
           disabled={pending}
           className="neu-btn px-3 py-2 text-sm"
         >
-          + 클립
+          + Clip
         </button>
       </form>
       {error && <p className="text-xs text-red-600">{error}</p>}
@@ -326,7 +326,7 @@ export default function ChapterManager({
   function onDelete(c: Chapter) {
     if (
       !confirm(
-        `"${c.title}" 챕터를 삭제할까요? 클립·자료·학생 진도 기록이 함께 삭제됩니다.`,
+        `"${c.title}" 챕터를 삭제할까요? Clip·자료·학생 진도 기록이 함께 삭제됩니다.`,
       )
     )
       return;
@@ -400,7 +400,7 @@ export default function ChapterManager({
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-slate-400">
-                        클립 {c.videos.length}개 · 자료 {c.materials.length}개
+                        Clip {c.videos.length}개 · 자료 {c.materials.length}개
                       </p>
                     </div>
                     <div className="flex shrink-0 gap-2">

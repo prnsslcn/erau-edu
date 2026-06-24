@@ -21,10 +21,10 @@ export async function POST(req: Request) {
   const { video_id, watched_seconds, last_position, duration } = parsed.data;
   const studentId = session.sub;
 
-  // 잠긴 챕터의 클립에는 진도를 기록하지 않습니다.
+  // 잠긴 챕터의 Clip에는 진도를 기록하지 않습니다.
   const access = await getVideoAccess(studentId, video_id);
   if (!access) {
-    return NextResponse.json({ error: "클립을 찾을 수 없습니다." }, { status: 404 });
+    return NextResponse.json({ error: "Clip을 찾을 수 없습니다." }, { status: 404 });
   }
   if (access.locked) {
     return NextResponse.json({ error: "아직 잠긴 강의입니다." }, { status: 403 });
@@ -58,7 +58,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "저장 실패" }, { status: 500 });
   }
 
-  // 클립 길이가 비어 있으면 채워둠(진도율 계산용)
+  // Clip 길이가 비어 있으면 채워둠(진도율 계산용)
   if (access.video.duration_seconds == null) {
     await db
       .from("videos")

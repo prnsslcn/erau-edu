@@ -77,7 +77,7 @@ export default async function LearnHome() {
                       ? `강의 자료${chapter.description ? ` · ${chapter.description}` : ""}`
                       : unlocked
                         ? videos.length > 0
-                          ? `클립 ${doneVideos} / ${videos.length} 완료${chapter.description ? ` · ${chapter.description}` : ""}`
+                          ? `Clip ${doneVideos} / ${videos.length} 완료${chapter.description ? ` · ${chapter.description}` : ""}`
                           : chapter.description || "강의를 시청하세요."
                         : "이전 강의를 완료하면 열립니다."}
                   </p>

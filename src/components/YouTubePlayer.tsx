@@ -190,19 +190,21 @@ export default function YouTubePlayer({
       </div>
 
       <div className="px-1 pb-1">
-        {label && (
-          <p className="mb-1.5 text-sm font-semibold text-slate-700">{label}</p>
-        )}
-        <div className="flex items-center justify-between text-sm">
-          <span className="font-semibold text-slate-700">
-            시청 진도 {pct}%
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <span className="flex items-baseline gap-2">
+            {label && (
+              <span className="text-lg font-bold text-slate-800">{label}</span>
+            )}
+            <span className="font-semibold text-slate-700">
+              시청 진도 {pct}%
+            </span>
             {completed && (
-              <span className="ml-2 rounded-full bg-emerald-400/15 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-400/30">
+              <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-400/30">
                 Done
               </span>
             )}
           </span>
-          <span className="text-xs text-slate-400">
+          <span className="shrink-0 text-xs text-slate-400">
             완료 기준 {Math.round(COMPLETE_RATIO * 100)}% 시청
           </span>
         </div>

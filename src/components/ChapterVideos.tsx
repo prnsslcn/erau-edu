@@ -14,12 +14,12 @@ export interface VideoItem {
   completed: boolean;
 }
 
-// 챕터 내 여러 클립 — 진도 + 토글식 선택 목록 + 단일 플레이어 (자유 시청)
+// 챕터 내 여러 Clip — 진도 + 토글식 선택 목록 + 단일 플레이어 (자유 시청)
 export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
   const firstUndone = videos.findIndex((v) => !v.completed);
   const [active, setActive] = useState(firstUndone === -1 ? 0 : firstUndone);
   const multi = videos.length > 1;
-  // 클립이 많으면(>8) 기본 접힘
+  // Clip이 많으면(>8) 기본 접힘
   const [open, setOpen] = useState(videos.length <= 8);
 
   const current = videos[active];
@@ -27,12 +27,12 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
 
   return (
     <div className="space-y-3">
-      {/* 진도 영역 + 클립 목록 토글 — 하나의 기다란 뉴모피즘 바 */}
+      {/* 진도 영역 + Clip 목록 토글 — 하나의 기다란 뉴모피즘 바 */}
       <div className="neu-raised flex items-center justify-between gap-4 rounded-2xl px-5 py-3.5">
         <div className="w-full max-w-xs">
           <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
             <span>
-              클립 {done} / {videos.length} 완료
+              Clip {done} / {videos.length} 완료
             </span>
             <span>자유 시청</span>
           </div>
@@ -48,7 +48,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
             onClick={() => setOpen((o) => !o)}
             className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
           >
-            클립 목록 ({videos.length})
+            Clip 목록 ({videos.length})
             <ChevronDown
               size={15}
               className={`transition-transform ${open ? "rotate-180" : ""}`}
@@ -81,13 +81,13 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
               >
                 {v.completed ? "✓" : i + 1}
               </span>
-              {v.title || `클립 ${i + 1}`}
+              {v.title || `Clip ${i + 1}`}
             </button>
           ))}
         </div>
       )}
 
-      {/* 활성 클립 플레이어 */}
+      {/* 활성 Clip 플레이어 */}
       {current && (
         <YouTubePlayer
           key={current.id}
@@ -96,7 +96,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
           initialPosition={current.last_position}
           initialWatchedSeconds={current.watched_seconds}
           initialCompleted={current.completed}
-          label={multi ? current.title || `클립 ${active + 1}` : undefined}
+          label={multi ? current.title || `Clip ${active + 1}` : undefined}
         />
       )}
     </div>
