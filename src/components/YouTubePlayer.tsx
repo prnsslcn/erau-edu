@@ -71,6 +71,7 @@ export default function YouTubePlayer({
   const durationRef = useRef<number>(0);
   const dirtyRef = useRef<boolean>(false);
   const completedRef = useRef<boolean>(initialCompleted);
+  const readyRef = useRef<boolean>(false); // 플레이어 API 준비 여부
 
   const [watchedCount, setWatchedCount] = useState(initialWatchedSeconds);
   const [duration, setDuration] = useState(0);
@@ -107,6 +108,7 @@ export default function YouTubePlayer({
     let sampleTimer: ReturnType<typeof setInterval>;
     let flushTimer: ReturnType<typeof setInterval>;
     let cancelled = false;
+    readyRef.current = false;
 
     loadYouTubeApi().then((YT) => {
       if (cancelled || !mountRef.current) return;
@@ -121,6 +123,7 @@ export default function YouTubePlayer({
         },
         events: {
           onReady: () => {
+            readyRef.current = true;
             const d = playerRef.current?.getDuration() ?? 0;
             durationRef.current = d;
             setDuration(d);
@@ -137,7 +140,8 @@ export default function YouTubePlayer({
       sampleTimer = setInterval(() => {
         const p = playerRef.current;
         const YTns = window.YT;
-        if (!p || !YTns) return;
+        if (!p || !YTns || !readyRef.current) return;
+        if (typeof p.getPlayerState !== "function") return;
         if (p.getPlayerState() !== YTns.PlayerState.PLAYING) return;
 
         const t = Math.floor(p.getCurrentTime());
