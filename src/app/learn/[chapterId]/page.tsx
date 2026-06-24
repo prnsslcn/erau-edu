@@ -149,7 +149,7 @@ export default async function ChapterPlayerPage({
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
                       it.completed
-                        ? "bg-slate-400 text-white"
+                        ? "bg-slate-500 text-white"
                         : active
                           ? "bg-blue-500 text-white"
                           : "bg-slate-200 text-slate-400"
