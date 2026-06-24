@@ -45,7 +45,8 @@ export default async function ChapterPlayerPage({
   const doneCount = videos.filter((v) => v.completed).length;
 
   return (
-    <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-6">
+    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px_260px] lg:gap-6">
+      {/* 1) 강의 영상 */}
       <div className="space-y-6">
         <div>
           <Link href="/learn" className="text-sm text-brand hover:underline">
@@ -77,7 +78,6 @@ export default async function ChapterPlayerPage({
           )}
         </div>
 
-        {/* 영상 (자유 시청 — 선택 목록 + 단일 플레이어) */}
         {videos.length === 0 ? (
           materials.length === 0 ? (
             <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
@@ -85,7 +85,7 @@ export default async function ChapterPlayerPage({
             </p>
           ) : (
             <p className="neu-flat rounded-2xl p-6 text-center text-sm text-slate-500">
-              이 강의는 영상 없이 강의 자료로 구성되어 있습니다. 아래 자료를 확인하세요.
+              이 강의는 영상 없이 강의 자료로 구성되어 있습니다. 우측 자료를 확인하세요.
             </p>
           )
         ) : (
@@ -101,32 +101,6 @@ export default async function ChapterPlayerPage({
           />
         )}
 
-        {/* 강의 자료 */}
-        {materials.length > 0 && (
-          <div className="space-y-2">
-            <h2 className="text-sm font-semibold text-slate-700">강의 자료</h2>
-            <ul className="space-y-2">
-              {materials.map((m) => (
-                <li key={m.id}>
-                  <a
-                    href={`/api/materials/${m.id}`}
-                    className="neu-btn flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
-                  >
-                    <span className="flex items-center gap-2 truncate">
-                      <span aria-hidden>📄</span>
-                      <span className="truncate text-slate-700 font-light">{m.title}</span>
-                    </span>
-                    <span className="shrink-0 text-xs text-slate-400">
-                      {fmtSize(m.size_bytes)}
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* 챕터 완료 시 다음 강의 */}
         {item.completed && next && (
           <div className="neu-raised-sm flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
             <p className="text-sm font-medium text-emerald-700">
@@ -142,9 +116,38 @@ export default async function ChapterPlayerPage({
         )}
       </div>
 
-      {/* 사이드바 — 강의 목록 */}
+      {/* 2) 강의 자료 */}
+      <div className="mt-6 lg:mt-0">
+        <h2 className="text-sm font-semibold text-slate-700">강의 자료</h2>
+        {materials.length === 0 ? (
+          <p className="mt-2 text-xs text-slate-400">등록된 자료가 없습니다.</p>
+        ) : (
+          <ul className="mt-2 space-y-2">
+            {materials.map((m) => (
+              <li key={m.id}>
+                <a
+                  href={`/api/materials/${m.id}`}
+                  className="neu-btn flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
+                >
+                  <span className="flex min-w-0 items-center gap-2">
+                    <span aria-hidden>📄</span>
+                    <span className="truncate font-light text-slate-700">
+                      {m.title}
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs text-slate-400">
+                    {fmtSize(m.size_bytes)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      {/* 3) ALL 사이드바 */}
       <aside className="mt-6 lg:mt-0">
-        <div className="neu-raised sticky top-24 h-full rounded-2xl p-3">
+        <div className="neu-raised sticky top-24 rounded-2xl p-3">
           <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
             All
           </p>
