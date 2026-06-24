@@ -53,7 +53,7 @@ export default async function ChapterPlayerPage({
         {/* 1) 강의 영상 */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-4xl font-extrabold tracking-tight">
+            <h1 className="text-4xl font-bold tracking-tight">
             <span className="text-slate-400">{chapter.position + 1}강 · </span>
             {chapter.title}
           </h1>
@@ -63,17 +63,17 @@ export default async function ChapterPlayerPage({
             </p>
           )}
           {videos.length > 0 && (
-            <div className="mt-3 max-w-xs">
-              <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
+            <div className="mt-4 max-w-md">
+              <div className="mb-2 flex items-center justify-between text-sm text-slate-500">
                 <span>
                   영상 {doneCount} / {videos.length} 완료
                 </span>
-                <span>자유 시청</span>
+                <span className="text-slate-400">자유 시청</span>
               </div>
               <NeuProgress
                 percent={(doneCount / videos.length) * 100}
                 tone="green"
-                className="h-2"
+                className="h-3"
               />
             </div>
           )}
