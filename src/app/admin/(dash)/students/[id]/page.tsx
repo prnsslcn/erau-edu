@@ -46,7 +46,7 @@ export default async function StudentDetailPage({
               (v) => v.completed || v.watchedSeconds > 0,
             );
             const status = c.materialsOnly
-              ? { label: "Materials", cls: "bg-blue-400/10 text-brand ring-blue-400/30" }
+              ? { label: "Materials", cls: "bg-slate-300/40 text-slate-500 ring-slate-400/30" }
               : c.completed
                 ? { label: "Done", cls: "bg-emerald-400/15 text-emerald-700 ring-emerald-400/30" }
                 : anyStarted

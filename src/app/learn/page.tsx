@@ -36,7 +36,7 @@ export default async function LearnHome() {
             const status = materialsOnly
               ? {
                   label: "Materials",
-                  cls: "bg-blue-400/10 text-brand ring-1 ring-inset ring-blue-400/30",
+                  cls: "bg-slate-300/40 text-slate-500 ring-1 ring-inset ring-slate-400/30",
                 }
               : completed
                 ? {
