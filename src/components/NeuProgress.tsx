@@ -8,10 +8,10 @@ export default function NeuProgress({
 }: {
   percent: number;
   className?: string;
-  tone?: "blue" | "green";
+  tone?: "blue" | "gray";
 }) {
   const p = Math.max(0, Math.min(100, Math.round(percent)));
-  const fill = tone === "green" ? "bg-lime-500" : "bg-blue-500";
+  const fill = tone === "gray" ? "bg-slate-400" : "bg-blue-500";
 
   return (
     <div
