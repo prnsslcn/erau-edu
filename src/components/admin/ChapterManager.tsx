@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Chapter, Material, Video } from "@/lib/db/types";
 import {
@@ -41,6 +41,11 @@ function ChapterForm({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  // 생성 폼에서 직접 추가하는 클립/자료 입력 행
+  const clipSeq = useRef(1);
+  const matSeq = useRef(1);
+  const [clipRows, setClipRows] = useState<number[]>([0]);
+  const [matRows, setMatRows] = useState<number[]>([]);
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -104,6 +109,83 @@ function ChapterForm({
         />
         Public (학생에게 노출)
       </label>
+
+      {/* 생성 시 클립/자료 직접 추가 */}
+      {!chapter && (
+        <div className="space-y-4 border-t border-slate-200 pt-3">
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-slate-500">
+              클립 (YouTube)
+            </p>
+            {clipRows.map((id) => (
+              <div key={id} className="flex items-center gap-2">
+                <input
+                  name="clip_youtube"
+                  placeholder="YouTube 링크 또는 ID"
+                  className={`${inputCls} min-w-0 flex-1`}
+                />
+                <input
+                  name="clip_title"
+                  placeholder="제목(선택)"
+                  className={`${inputCls} w-32`}
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setClipRows((r) => r.filter((x) => x !== id))
+                  }
+                  className="shrink-0 px-1.5 text-sm text-red-500"
+                  aria-label="클립 행 삭제"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setClipRows((r) => [...r, clipSeq.current++])}
+              className="neu-btn px-3 py-1.5 text-xs"
+            >
+              + 클립 추가
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-slate-500">자료 PDF</p>
+            {matRows.map((id) => (
+              <div key={id} className="flex items-center gap-2">
+                <input
+                  name="material_file"
+                  type="file"
+                  accept="application/pdf"
+                  className="min-w-0 flex-1 text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:text-xs file:text-slate-600"
+                />
+                <input
+                  name="material_title"
+                  placeholder="자료명(선택)"
+                  className={`${inputCls} w-32`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setMatRows((r) => r.filter((x) => x !== id))}
+                  className="shrink-0 px-1.5 text-sm text-red-500"
+                  aria-label="자료 행 삭제"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setMatRows((r) => [...r, matSeq.current++])}
+              className="neu-btn px-3 py-1.5 text-xs"
+            >
+              + 자료 추가
+            </button>
+          </div>
+        </div>
+      )}
+
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-2">
         <button

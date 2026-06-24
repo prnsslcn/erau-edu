@@ -32,14 +32,79 @@ export async function createChapter(formData: FormData): Promise<ActionResult> {
   if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message };
 
+  // 폼에서 함께 받은 클립/자료를 먼저 검증 (부분 생성 방지)
+  const clipUrls = formData.getAll("clip_youtube").map((v) => String(v).trim());
+  const clipTitles = formData.getAll("clip_title").map((v) => String(v).trim());
+  const clips: { youtube_id: string; title: string | null }[] = [];
+  for (let i = 0; i < clipUrls.length; i++) {
+    if (!clipUrls[i]) continue;
+    const yid = extractYouTubeId(clipUrls[i]);
+    if (!yid)
+      return {
+        ok: false,
+        error: `클립 ${i + 1}: 올바른 YouTube 링크 또는 ID가 아닙니다.`,
+      };
+    clips.push({ youtube_id: yid, title: clipTitles[i] || null });
+  }
+
+  const matFiles = formData.getAll("material_file");
+  const matTitles = formData.getAll("material_title").map((v) => String(v));
+  const materials: { file: File; title: string }[] = [];
+  for (let i = 0; i < matFiles.length; i++) {
+    const f = matFiles[i];
+    if (!(f instanceof File) || f.size === 0) continue;
+    if (f.type !== "application/pdf")
+      return { ok: false, error: `자료 ${i + 1}: PDF 파일만 업로드할 수 있습니다.` };
+    if (f.size > 50 * 1024 * 1024)
+      return { ok: false, error: `자료 ${i + 1}: 파일이 너무 큽니다 (최대 50MB).` };
+    materials.push({ file: f, title: matTitles[i]?.trim() || f.name });
+  }
+
   const db = getServiceClient();
-  const { error } = await db.from("chapters").insert({
-    title: parsed.data.title,
-    description: parsed.data.description || null,
-    position: parsed.data.position,
-    is_published: parsed.data.is_published,
-  });
-  if (error) return { ok: false, error: "저장 중 오류가 발생했습니다." };
+  const { data: chapter, error } = await db
+    .from("chapters")
+    .insert({
+      title: parsed.data.title,
+      description: parsed.data.description || null,
+      position: parsed.data.position,
+      is_published: parsed.data.is_published,
+    })
+    .select("id")
+    .single();
+  if (error || !chapter)
+    return { ok: false, error: "저장 중 오류가 발생했습니다." };
+
+  if (clips.length > 0) {
+    await db.from("videos").insert(
+      clips.map((c, i) => ({
+        chapter_id: chapter.id,
+        youtube_id: c.youtube_id,
+        title: c.title,
+        position: i,
+      })),
+    );
+  }
+
+  for (let i = 0; i < materials.length; i++) {
+    const { file, title } = materials[i];
+    const safe = file.name.replace(/[^\w.\-]+/g, "_");
+    const path = `${chapter.id}/${Date.now()}_${i}_${safe}`;
+    const { error: upErr } = await db.storage
+      .from("materials")
+      .upload(path, await file.arrayBuffer(), {
+        contentType: "application/pdf",
+        upsert: false,
+      });
+    if (upErr) continue;
+    await db.from("materials").insert({
+      chapter_id: chapter.id,
+      title,
+      storage_path: path,
+      size_bytes: file.size,
+      position: i,
+    });
+  }
+
   revalidate();
   return { ok: true };
 }
