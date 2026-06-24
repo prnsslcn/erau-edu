@@ -27,8 +27,8 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
 
   return (
     <div className="space-y-3">
-      {/* 진도 영역 + 영상 목록 토글 (한 줄) */}
-      <div className="flex items-end justify-between gap-4">
+      {/* 진도 영역 + 영상 목록 토글 — 하나의 기다란 뉴모피즘 바 */}
+      <div className="neu-raised flex items-center justify-between gap-4 rounded-2xl px-5 py-3.5">
         <div className="w-full max-w-xs">
           <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
             <span>
@@ -46,7 +46,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
         {multi && (
           <button
             onClick={() => setOpen((o) => !o)}
-            className="neu-btn flex shrink-0 items-center gap-1.5 px-3 py-2 text-sm text-slate-600"
+            className="flex shrink-0 items-center gap-1.5 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
           >
             영상 목록 ({videos.length})
             <ChevronDown
