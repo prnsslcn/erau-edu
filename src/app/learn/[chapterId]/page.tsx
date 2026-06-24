@@ -49,7 +49,7 @@ export default async function ChapterPlayerPage({
       <Link href="/learn" className="text-sm text-brand hover:underline">
         ← 강의 목록
       </Link>
-      <div className="mt-3 lg:grid lg:grid-cols-[minmax(0,1fr)_300px_260px] lg:items-start lg:gap-6">
+      <div className="mt-3 lg:grid lg:grid-cols-[minmax(0,1fr)_300px_260px] lg:items-baseline lg:gap-6">
         {/* 1) 강의 영상 */}
         <div className="space-y-6">
           <div>
