@@ -97,8 +97,8 @@ function ChapterRow({
 
       {/* 블라인드 펼침 영역 */}
       <div
-        className={`grid transition-all duration-500 ease-out ${
-          open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+        className={`grid transition-[grid-template-rows] duration-500 ease-out ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         }`}
       >
         <div className="overflow-hidden">
