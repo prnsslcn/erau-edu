@@ -97,12 +97,12 @@ function ChapterRow({
 
       {/* 블라인드 펼침 영역 */}
       <div
-        className={`grid transition-all duration-300 ease-out ${
+        className={`grid transition-all duration-500 ease-out ${
           open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
         }`}
       >
         <div className="overflow-hidden">
-          <div className="space-y-3 border-t border-slate-200 px-4 py-3.5">
+          <div className="space-y-3 px-4 pb-3.5 pt-1">
             {c.videos.length > 0 ? (
               <ul className="space-y-1.5">
                 {c.videos.map((v, i) => (
