@@ -127,7 +127,7 @@ export default function AuthForm({
           disabled={loading}
           className="neu-btn-primary w-full py-2.5 text-[15px]"
         >
-          {loading ? "처리 중…" : submitLabel}
+          {loading ? "Processing…" : submitLabel}
         </button>
       </form>
 
