@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown } from "lucide-react";
 import YouTubePlayer from "@/components/YouTubePlayer";
+import NeuProgress from "@/components/NeuProgress";
 
 export interface VideoItem {
   id: string;
@@ -12,16 +14,51 @@ export interface VideoItem {
   completed: boolean;
 }
 
-// 챕터 내 여러 영상 — 선택 목록 + 단일 플레이어 (자유 시청)
+// 챕터 내 여러 영상 — 진도 + 토글식 선택 목록 + 단일 플레이어 (자유 시청)
 export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
-  // 첫 미완료 영상을 기본 선택
   const firstUndone = videos.findIndex((v) => !v.completed);
   const [active, setActive] = useState(firstUndone === -1 ? 0 : firstUndone);
+  const multi = videos.length > 1;
+  // 영상이 많으면(>8) 기본 접힘
+  const [open, setOpen] = useState(videos.length <= 8);
+
   const current = videos[active];
+  const done = videos.filter((v) => v.completed).length;
 
   return (
     <div className="space-y-3">
-      {videos.length > 1 && (
+      {/* 진도 영역 + 영상 목록 토글 (한 줄) */}
+      <div className="flex items-end justify-between gap-4">
+        <div className="w-full max-w-xs">
+          <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
+            <span>
+              영상 {done} / {videos.length} 완료
+            </span>
+            <span>자유 시청</span>
+          </div>
+          <NeuProgress
+            percent={(done / videos.length) * 100}
+            tone="green"
+            className="h-2"
+          />
+        </div>
+
+        {multi && (
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="neu-btn flex shrink-0 items-center gap-1.5 px-3 py-2 text-sm text-slate-600"
+          >
+            영상 목록 ({videos.length})
+            <ChevronDown
+              size={15}
+              className={`transition-transform ${open ? "rotate-180" : ""}`}
+            />
+          </button>
+        )}
+      </div>
+
+      {/* 토글 펼침 시 칩 목록 */}
+      {multi && open && (
         <div className="flex flex-wrap gap-2">
           {videos.map((v, i) => (
             <button
@@ -50,9 +87,10 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
         </div>
       )}
 
+      {/* 활성 영상 플레이어 */}
       {current && (
         <div>
-          {videos.length > 1 && (
+          {multi && (
             <h2 className="mb-2 text-sm font-semibold text-slate-700">
               {current.title || `영상 ${active + 1}`}
             </h2>

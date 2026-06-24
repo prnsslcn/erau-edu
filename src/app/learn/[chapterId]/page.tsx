@@ -5,7 +5,6 @@ import { getStudentChapters } from "@/lib/db/learn";
 import { getServiceClient } from "@/lib/supabase";
 import type { Material } from "@/lib/db/types";
 import ChapterVideos from "@/components/ChapterVideos";
-import NeuProgress from "@/components/NeuProgress";
 
 export const dynamic = "force-dynamic";
 
@@ -42,8 +41,6 @@ export default async function ChapterPlayerPage({
     .order("position", { ascending: true });
   const materials = (materialsData as Material[]) ?? [];
 
-  const doneCount = videos.filter((v) => v.completed).length;
-
   return (
     <div>
       <Link href="/learn" className="text-sm text-brand hover:underline">
@@ -61,21 +58,6 @@ export default async function ChapterPlayerPage({
             <p className="mt-1.5 text-base leading-relaxed text-slate-500">
               {chapter.description}
             </p>
-          )}
-          {videos.length > 0 && (
-            <div className="mt-3 max-w-xs">
-              <div className="mb-1.5 flex items-center justify-between text-xs text-slate-400">
-                <span>
-                  영상 {doneCount} / {videos.length} 완료
-                </span>
-                <span>자유 시청</span>
-              </div>
-              <NeuProgress
-                percent={(doneCount / videos.length) * 100}
-                tone="green"
-                className="h-2"
-              />
-            </div>
           )}
         </div>
 
