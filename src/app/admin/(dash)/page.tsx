@@ -50,8 +50,8 @@ export default async function AdminDashboard() {
           아직 가입한 학생이 없습니다.
         </p>
       ) : (
-        <div className="neu-raised overflow-hidden rounded-2xl">
-          <table className="w-full text-sm">
+        <div className="neu-raised overflow-x-auto rounded-2xl">
+          <table className="w-full min-w-[480px] text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left text-xs text-slate-500">
                 <th className="px-4 py-3 font-medium">Name</th>

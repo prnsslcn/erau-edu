@@ -17,12 +17,14 @@ export default async function LearnLayout({
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-5">
           <Link
             href="/learn"
-            className="font-display text-2xl font-extrabold tracking-tight sm:text-4xl"
+            className="font-display text-xl font-extrabold tracking-tight sm:text-4xl"
           >
             ERAU EduPrep
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-500">{session.name} 님</span>
+            <span className="hidden text-sm text-slate-500 sm:inline">
+              {session.name} 님
+            </span>
             <LogoutButton />
           </div>
         </div>

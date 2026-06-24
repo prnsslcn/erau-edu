@@ -28,15 +28,15 @@ export default async function Home() {
 
       {/* 좌측 1/3 — 브랜드 + 로그인 박스 */}
       <div className="relative z-10 mx-auto w-full max-w-lg lg:mx-0 lg:ml-[10%]">
-        <div className="neu-raised rounded-3xl p-10 sm:p-12">
+        <div className="neu-raised rounded-3xl p-7 sm:p-12">
           <p className="text-sm font-semibold tracking-wide text-brand">
             입학 전 온라인 교육 과정
           </p>
           <h1 className="mt-4 font-display leading-[1.05] tracking-tight">
-            <span className="block text-5xl font-extrabold text-slate-800 sm:text-6xl">
+            <span className="block text-4xl font-extrabold text-slate-800 sm:text-6xl">
               Embry-Riddle
             </span>
-            <span className="block text-5xl font-light text-slate-600 sm:text-6xl">
+            <span className="block text-4xl font-light text-slate-600 sm:text-6xl">
               EduPrep
             </span>
           </h1>
