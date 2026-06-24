@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { getStudentChapters } from "@/lib/db/learn";
 import { getServiceClient } from "@/lib/supabase";
 import type { Material } from "@/lib/db/types";
-import YouTubePlayer from "@/components/YouTubePlayer";
+import ChapterVideos from "@/components/ChapterVideos";
 
 export const dynamic = "force-dynamic";
 
@@ -66,33 +66,28 @@ export default async function ChapterPlayerPage({
           )}
         </div>
 
-        {/* 영상 목록 (자유 시청) */}
+        {/* 영상 (자유 시청 — 선택 목록 + 단일 플레이어) */}
         {videos.length === 0 ? (
-          <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
-            등록된 영상이 없습니다.
-          </p>
+          materials.length === 0 ? (
+            <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
+              등록된 영상이 없습니다.
+            </p>
+          ) : (
+            <p className="neu-flat rounded-2xl p-6 text-center text-sm text-slate-500">
+              이 강의는 영상 없이 강의 자료로 구성되어 있습니다. 아래 자료를 확인하세요.
+            </p>
+          )
         ) : (
-          <div className="space-y-8">
-            {videos.map((v, i) => (
-              <div key={v.video.id} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-500">
-                    {v.completed ? "✓" : i + 1}
-                  </span>
-                  <h2 className="text-sm font-semibold text-slate-700">
-                    {v.video.title || `영상 ${i + 1}`}
-                  </h2>
-                </div>
-                <YouTubePlayer
-                  videoId={v.video.id}
-                  youtubeId={v.video.youtube_id}
-                  initialPosition={v.progress?.last_position ?? 0}
-                  initialWatchedSeconds={v.progress?.watched_seconds ?? 0}
-                  initialCompleted={v.completed}
-                />
-              </div>
-            ))}
-          </div>
+          <ChapterVideos
+            videos={videos.map((v) => ({
+              id: v.video.id,
+              youtube_id: v.video.youtube_id,
+              title: v.video.title,
+              last_position: v.progress?.last_position ?? 0,
+              watched_seconds: v.progress?.watched_seconds ?? 0,
+              completed: v.completed,
+            }))}
+          />
         )}
 
         {/* 강의 자료 */}
