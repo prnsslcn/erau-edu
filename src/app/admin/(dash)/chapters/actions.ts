@@ -115,7 +115,7 @@ export async function addVideo(
     youtube_id,
     position: count ?? 0,
   });
-  if (error) return { ok: false, error: "영상 추가 중 오류가 발생했습니다." };
+  if (error) return { ok: false, error: "클립 추가 중 오류가 발생했습니다." };
   revalidate();
   return { ok: true };
 }
@@ -124,7 +124,7 @@ export async function deleteVideo(id: string): Promise<ActionResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
   const db = getServiceClient();
   const { error } = await db.from("videos").delete().eq("id", id);
-  if (error) return { ok: false, error: "영상 삭제 중 오류가 발생했습니다." };
+  if (error) return { ok: false, error: "클립 삭제 중 오류가 발생했습니다." };
   revalidate();
   return { ok: true };
 }

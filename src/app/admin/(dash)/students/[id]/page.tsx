@@ -81,7 +81,7 @@ export default async function StudentDetailPage({
                       )}
                     </div>
 
-                    {/* 영상별 진도 */}
+                    {/* 클립별 진도 */}
                     {c.videos.length > 0 && (
                       <ul className="mt-2 space-y-1.5">
                         {c.videos.map((v, i) => (
@@ -99,7 +99,7 @@ export default async function StudentDetailPage({
                               {v.completed ? "✓" : i + 1}
                             </span>
                             <span className="w-32 shrink-0 truncate text-slate-500">
-                              {v.video.title || `영상 ${i + 1}`}
+                              {v.video.title || `클립 ${i + 1}`}
                             </span>
                             <div className="max-w-[10rem] flex-1">
                               <NeuProgress percent={v.pct} className="h-1.5" />

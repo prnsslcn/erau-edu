@@ -47,7 +47,7 @@ export default async function ChapterPlayerPage({
         ← 강의 목록
       </Link>
       <div className="mt-3 lg:grid lg:grid-cols-[minmax(0,1fr)_300px_260px] lg:items-baseline lg:gap-6">
-        {/* 1) 강의 영상 */}
+        {/* 1) 강의 클립 */}
         <div className="space-y-6">
           <div>
             <h1 className="text-4xl font-bold tracking-tight">
@@ -64,11 +64,11 @@ export default async function ChapterPlayerPage({
         {videos.length === 0 ? (
           materials.length === 0 ? (
             <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
-              등록된 영상이 없습니다.
+              등록된 클립이 없습니다.
             </p>
           ) : (
             <p className="neu-flat rounded-2xl p-6 text-center text-sm text-slate-500">
-              이 강의는 영상 없이 강의 자료로 구성되어 있습니다. 우측 자료를 확인하세요.
+              이 강의는 클립 없이 강의 자료로 구성되어 있습니다. 우측 자료를 확인하세요.
             </p>
           )
         ) : (
