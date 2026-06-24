@@ -1,59 +1,165 @@
 import "server-only";
 import { getServiceClient } from "@/lib/supabase";
-import type { Chapter, Progress } from "./types";
+import type { Chapter, Material, Video, VideoProgress } from "./types";
 
-export type StudentChapterProgress = Pick<
-  Progress,
+export type VideoProgressLite = Pick<
+  VideoProgress,
   "watched_seconds" | "last_position" | "completed"
 >;
 
-export interface StudentChapter {
-  chapter: Chapter;
-  progress: StudentChapterProgress | null;
+export interface StudentVideo {
+  video: Video;
+  progress: VideoProgressLite | null;
   completed: boolean;
-  unlocked: boolean; // 첫 강의이거나 이전 강의 완료, 또는 교수진 수동 해제 시 true
-  overridden: boolean; // 교수진이 수동으로 잠금 해제했는지
 }
 
-// 공개 챕터를 순서대로, 학생의 진도/잠금 상태와 함께 반환합니다.
-export async function getStudentChapters(
-  studentId: string,
-): Promise<StudentChapter[]> {
-  const db = getServiceClient();
+export interface StudentChapter {
+  chapter: Chapter;
+  videos: StudentVideo[];
+  completed: boolean; // 챕터의 모든 영상 완료 (영상 0개면 완료로 간주)
+  unlocked: boolean; // 이전 챕터 완료 또는 교수진 수동 해제
+  overridden: boolean;
+}
 
-  const [{ data: chapters }, { data: progress }] = await Promise.all([
+async function loadStudentData(studentId: string) {
+  const db = getServiceClient();
+  const [
+    { data: chapters },
+    { data: videos },
+    { data: progress },
+    { data: unlocks },
+  ] = await Promise.all([
     db
       .from("chapters")
       .select("*")
       .eq("is_published", true)
       .order("position", { ascending: true }),
-    // 마이그레이션 전후 모두 안전하도록 전체 컬럼 조회
-    db.from("progress").select("*").eq("student_id", studentId),
+    db.from("videos").select("*").order("position", { ascending: true }),
+    db.from("video_progress").select("*").eq("student_id", studentId),
+    db.from("chapter_unlocks").select("*").eq("student_id", studentId),
   ]);
 
-  const progressByChapter = new Map(
-    (progress ?? []).map((p) => [p.chapter_id, p]),
+  const progressByVideo = new Map(
+    (progress ?? []).map((p) => [p.video_id, p as VideoProgress]),
   );
+  const overrideByChapter = new Map(
+    (unlocks ?? []).map((u) => [u.chapter_id, u.unlocked_override as boolean]),
+  );
+  const videosByChapter = new Map<string, Video[]>();
+  for (const v of (videos as Video[]) ?? []) {
+    const arr = videosByChapter.get(v.chapter_id) ?? [];
+    arr.push(v);
+    videosByChapter.set(v.chapter_id, arr);
+  }
 
-  let prevCompleted = true; // 첫 강의는 항상 열림
-  return ((chapters as Chapter[]) ?? []).map((chapter) => {
-    const p = progressByChapter.get(chapter.id) ?? null;
-    const completed = p?.completed ?? false;
-    const overridden = p?.unlocked_override ?? false;
-    const unlocked = prevCompleted || overridden;
-    prevCompleted = completed;
-    return { chapter, progress: p, completed, unlocked, overridden };
+  return {
+    chapters: (chapters as Chapter[]) ?? [],
+    videosByChapter,
+    progressByVideo,
+    overrideByChapter,
+  };
+}
+
+function buildStudentVideos(
+  videos: Video[],
+  progressByVideo: Map<string, VideoProgress>,
+): StudentVideo[] {
+  return videos.map((video) => {
+    const p = progressByVideo.get(video.id) ?? null;
+    return {
+      video,
+      progress: p,
+      completed: p?.completed ?? false,
+    };
   });
 }
 
-// 플레이어 페이지용: 특정 챕터를 잠금 검사와 함께 반환.
-// 잠겨 있으면 locked=true, 비공개/없으면 null.
+// 공개 챕터를 순서대로, 영상/진도/잠금 상태와 함께 반환 (강의 목록 페이지)
+export async function getStudentChapters(
+  studentId: string,
+): Promise<StudentChapter[]> {
+  const { chapters, videosByChapter, progressByVideo, overrideByChapter } =
+    await loadStudentData(studentId);
+
+  let prevCompleted = true; // 첫 챕터는 항상 열림
+  return chapters.map((chapter) => {
+    const videos = buildStudentVideos(
+      videosByChapter.get(chapter.id) ?? [],
+      progressByVideo,
+    );
+    // 영상이 없으면 완료로 간주(다음 챕터를 막지 않도록)
+    const completed = videos.every((v) => v.completed);
+    const overridden = overrideByChapter.get(chapter.id) ?? false;
+    const unlocked = prevCompleted || overridden;
+    prevCompleted = completed;
+    return { chapter, videos, completed, unlocked, overridden };
+  });
+}
+
+export interface ChapterForStudent {
+  item: StudentChapter;
+  materials: Material[];
+  locked: boolean;
+}
+
+// 플레이어 페이지용: 챕터 + 영상(진도) + 자료 + 잠금 상태
 export async function getChapterForStudent(
   studentId: string,
   chapterId: string,
-): Promise<{ item: StudentChapter; locked: boolean } | null> {
+): Promise<ChapterForStudent | null> {
   const list = await getStudentChapters(studentId);
   const item = list.find((c) => c.chapter.id === chapterId);
   if (!item) return null;
-  return { item, locked: !item.unlocked };
+
+  const db = getServiceClient();
+  const { data: materials } = await db
+    .from("materials")
+    .select("*")
+    .eq("chapter_id", chapterId)
+    .order("position", { ascending: true });
+
+  return {
+    item,
+    materials: (materials as Material[]) ?? [],
+    locked: !item.unlocked,
+  };
+}
+
+export interface VideoAccess {
+  video: Video;
+  chapterId: string;
+  progress: VideoProgress | null;
+  locked: boolean; // 소속 챕터가 잠겨 있으면 true
+}
+
+// 진도 API용: 영상이 속한 챕터의 잠금 상태 확인
+export async function getVideoAccess(
+  studentId: string,
+  videoId: string,
+): Promise<VideoAccess | null> {
+  const db = getServiceClient();
+  const { data: video } = await db
+    .from("videos")
+    .select("*")
+    .eq("id", videoId)
+    .maybeSingle();
+  if (!video) return null;
+
+  const list = await getStudentChapters(studentId);
+  const chapter = list.find((c) => c.chapter.id === video.chapter_id);
+
+  const { data: progress } = await db
+    .from("video_progress")
+    .select("*")
+    .eq("student_id", studentId)
+    .eq("video_id", videoId)
+    .maybeSingle();
+
+  return {
+    video: video as Video,
+    chapterId: video.chapter_id,
+    progress: (progress as VideoProgress) ?? null,
+    // 챕터가 목록에 없으면(비공개 등) 잠금 처리
+    locked: !chapter || !chapter.unlocked,
+  };
 }

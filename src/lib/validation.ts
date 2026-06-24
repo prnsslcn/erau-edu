@@ -35,23 +35,20 @@ export const adminLoginSchema = z.object({
 export const chapterSchema = z.object({
   title: z.string().trim().min(1, "제목을 입력하세요").max(120),
   description: z.string().trim().max(2000).optional().or(z.literal("")),
-  youtube_id: z
-    .string()
-    .trim()
-    .min(1, "YouTube 영상 ID 또는 링크를 입력하세요"),
-  material_url: z
-    .string()
-    .trim()
-    .url("올바른 링크를 입력하세요")
-    .optional()
-    .or(z.literal("")),
   position: z.coerce.number().int().min(0),
   is_published: z.coerce.boolean().optional().default(false),
 });
 
+// 영상 (챕터 하위)
+export const videoSchema = z.object({
+  title: z.string().trim().max(120).optional().or(z.literal("")),
+  youtube_id: z.string().trim().min(1, "YouTube 링크 또는 영상 ID를 입력하세요"),
+  position: z.coerce.number().int().min(0).optional().default(0),
+});
+
 // 진도 업데이트 (영상 시청 하트비트)
 export const progressUpdateSchema = z.object({
-  chapter_id: z.string().uuid(),
+  video_id: z.string().uuid(),
   watched_seconds: z.coerce.number().int().min(0).max(100_000),
   last_position: z.coerce.number().int().min(0).max(100_000),
   duration: z.coerce.number().int().min(1).max(100_000),

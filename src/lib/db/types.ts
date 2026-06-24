@@ -20,22 +20,45 @@ export interface Chapter {
   id: string;
   title: string;
   description: string | null;
-  youtube_id: string;
-  material_url: string | null;
-  duration_seconds: number | null;
   position: number;
   is_published: boolean;
   created_at: string;
   updated_at: string;
 }
 
-export interface Progress {
-  student_id: string;
+export interface Video {
+  id: string;
   chapter_id: string;
+  title: string | null;
+  youtube_id: string;
+  duration_seconds: number | null;
+  position: number;
+  created_at: string;
+}
+
+export interface Material {
+  id: string;
+  chapter_id: string;
+  title: string;
+  storage_path: string;
+  size_bytes: number | null;
+  position: number;
+  created_at: string;
+}
+
+export interface VideoProgress {
+  student_id: string;
+  video_id: string;
   watched_seconds: number;
   last_position: number;
   completed: boolean;
   completed_at: string | null;
-  unlocked_override: boolean; // 교수진 수동 잠금 해제
+  updated_at: string;
+}
+
+export interface ChapterUnlock {
+  student_id: string;
+  chapter_id: string;
+  unlocked_override: boolean;
   updated_at: string;
 }

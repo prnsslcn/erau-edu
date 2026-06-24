@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getServiceClient } from "@/lib/supabase";
 import { requireRole } from "@/lib/auth/session";
-import { chapterSchema } from "@/lib/validation";
+import { chapterSchema, videoSchema } from "@/lib/validation";
 import { extractYouTubeId } from "@/lib/youtube";
 
 export interface ActionResult {
@@ -11,12 +11,16 @@ export interface ActionResult {
   error?: string;
 }
 
-function parse(formData: FormData) {
+function revalidate() {
+  revalidatePath("/admin/chapters");
+  revalidatePath("/learn");
+}
+
+// ─────────────── 챕터 ───────────────
+function parseChapter(formData: FormData) {
   return chapterSchema.safeParse({
     title: formData.get("title"),
     description: formData.get("description"),
-    youtube_id: formData.get("youtube_id"),
-    material_url: formData.get("material_url"),
     position: formData.get("position"),
     is_published: formData.get("is_published") === "on",
   });
@@ -24,31 +28,19 @@ function parse(formData: FormData) {
 
 export async function createChapter(formData: FormData): Promise<ActionResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
-
-  const parsed = parse(formData);
-  if (!parsed.success) {
+  const parsed = parseChapter(formData);
+  if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message };
-  }
-
-  const youtube_id = extractYouTubeId(parsed.data.youtube_id);
-  if (!youtube_id) {
-    return { ok: false, error: "올바른 YouTube 링크 또는 영상 ID가 아닙니다." };
-  }
 
   const db = getServiceClient();
   const { error } = await db.from("chapters").insert({
     title: parsed.data.title,
     description: parsed.data.description || null,
-    youtube_id,
-    material_url: parsed.data.material_url || null,
     position: parsed.data.position,
     is_published: parsed.data.is_published,
   });
-
   if (error) return { ok: false, error: "저장 중 오류가 발생했습니다." };
-
-  revalidatePath("/admin/chapters");
-  revalidatePath("/learn");
+  revalidate();
   return { ok: true };
 }
 
@@ -57,16 +49,9 @@ export async function updateChapter(
   formData: FormData,
 ): Promise<ActionResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
-
-  const parsed = parse(formData);
-  if (!parsed.success) {
+  const parsed = parseChapter(formData);
+  if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message };
-  }
-
-  const youtube_id = extractYouTubeId(parsed.data.youtube_id);
-  if (!youtube_id) {
-    return { ok: false, error: "올바른 YouTube 링크 또는 영상 ID가 아닙니다." };
-  }
 
   const db = getServiceClient();
   const { error } = await db
@@ -74,29 +59,138 @@ export async function updateChapter(
     .update({
       title: parsed.data.title,
       description: parsed.data.description || null,
-      youtube_id,
-      material_url: parsed.data.material_url || null,
       position: parsed.data.position,
       is_published: parsed.data.is_published,
       updated_at: new Date().toISOString(),
     })
     .eq("id", id);
-
   if (error) return { ok: false, error: "수정 중 오류가 발생했습니다." };
-
-  revalidatePath("/admin/chapters");
-  revalidatePath("/learn");
+  revalidate();
   return { ok: true };
 }
 
 export async function deleteChapter(id: string): Promise<ActionResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
-
   const db = getServiceClient();
+  // 챕터 자료의 스토리지 파일도 정리
+  const { data: mats } = await db
+    .from("materials")
+    .select("storage_path")
+    .eq("chapter_id", id);
+  if (mats && mats.length > 0) {
+    await db.storage.from("materials").remove(mats.map((m) => m.storage_path));
+  }
   const { error } = await db.from("chapters").delete().eq("id", id);
   if (error) return { ok: false, error: "삭제 중 오류가 발생했습니다." };
+  revalidate();
+  return { ok: true };
+}
 
-  revalidatePath("/admin/chapters");
-  revalidatePath("/learn");
+// ─────────────── 영상 ───────────────
+export async function addVideo(
+  chapterId: string,
+  formData: FormData,
+): Promise<ActionResult> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+  const parsed = videoSchema.safeParse({
+    title: formData.get("title"),
+    youtube_id: formData.get("youtube_id"),
+  });
+  if (!parsed.success)
+    return { ok: false, error: parsed.error.issues[0]?.message };
+
+  const youtube_id = extractYouTubeId(parsed.data.youtube_id);
+  if (!youtube_id)
+    return { ok: false, error: "올바른 YouTube 링크 또는 영상 ID가 아닙니다." };
+
+  const db = getServiceClient();
+  const { count } = await db
+    .from("videos")
+    .select("*", { count: "exact", head: true })
+    .eq("chapter_id", chapterId);
+
+  const { error } = await db.from("videos").insert({
+    chapter_id: chapterId,
+    title: parsed.data.title || null,
+    youtube_id,
+    position: count ?? 0,
+  });
+  if (error) return { ok: false, error: "영상 추가 중 오류가 발생했습니다." };
+  revalidate();
+  return { ok: true };
+}
+
+export async function deleteVideo(id: string): Promise<ActionResult> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+  const db = getServiceClient();
+  const { error } = await db.from("videos").delete().eq("id", id);
+  if (error) return { ok: false, error: "영상 삭제 중 오류가 발생했습니다." };
+  revalidate();
+  return { ok: true };
+}
+
+// ─────────────── 자료 (PDF) ───────────────
+export async function uploadMaterial(
+  chapterId: string,
+  formData: FormData,
+): Promise<ActionResult> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+
+  const file = formData.get("file");
+  if (!(file instanceof File) || file.size === 0)
+    return { ok: false, error: "파일을 선택하세요." };
+  if (file.type !== "application/pdf")
+    return { ok: false, error: "PDF 파일만 업로드할 수 있습니다." };
+  if (file.size > 50 * 1024 * 1024)
+    return { ok: false, error: "파일이 너무 큽니다 (최대 50MB)." };
+
+  const titleInput = (formData.get("title") as string | null)?.trim();
+  const title = titleInput || file.name;
+  const safeName = file.name.replace(/[^\w.\-]+/g, "_");
+  const path = `${chapterId}/${Date.now()}_${safeName}`;
+
+  const db = getServiceClient();
+  const { error: upErr } = await db.storage
+    .from("materials")
+    .upload(path, await file.arrayBuffer(), {
+      contentType: "application/pdf",
+      upsert: false,
+    });
+  if (upErr) return { ok: false, error: "업로드 실패: " + upErr.message };
+
+  const { count } = await db
+    .from("materials")
+    .select("*", { count: "exact", head: true })
+    .eq("chapter_id", chapterId);
+
+  const { error } = await db.from("materials").insert({
+    chapter_id: chapterId,
+    title,
+    storage_path: path,
+    size_bytes: file.size,
+    position: count ?? 0,
+  });
+  if (error) {
+    await db.storage.from("materials").remove([path]);
+    return { ok: false, error: "자료 저장 중 오류가 발생했습니다." };
+  }
+  revalidate();
+  return { ok: true };
+}
+
+export async function deleteMaterial(id: string): Promise<ActionResult> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+  const db = getServiceClient();
+  const { data: mat } = await db
+    .from("materials")
+    .select("storage_path")
+    .eq("id", id)
+    .maybeSingle();
+  if (mat?.storage_path) {
+    await db.storage.from("materials").remove([mat.storage_path]);
+  }
+  const { error } = await db.from("materials").delete().eq("id", id);
+  if (error) return { ok: false, error: "자료 삭제 중 오류가 발생했습니다." };
+  revalidate();
   return { ok: true };
 }

@@ -31,7 +31,8 @@ export default async function LearnHome() {
         </p>
       ) : (
         <ul className="space-y-3">
-          {items.map(({ chapter, completed, unlocked }) => {
+          {items.map(({ chapter, videos, completed, unlocked }) => {
+            const doneVideos = videos.filter((v) => v.completed).length;
             const status = completed
               ? {
                   label: "Done",
@@ -68,7 +69,9 @@ export default async function LearnHome() {
                   </div>
                   <p className="mt-1 text-xs text-slate-500">
                     {unlocked
-                      ? chapter.description || "강의를 시청하세요."
+                      ? videos.length > 0
+                        ? `영상 ${doneVideos} / ${videos.length} 완료${chapter.description ? ` · ${chapter.description}` : ""}`
+                        : chapter.description || "강의를 시청하세요."
                       : "이전 강의를 완료하면 열립니다."}
                   </p>
                 </div>

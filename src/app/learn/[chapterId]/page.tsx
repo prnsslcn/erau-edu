@@ -2,9 +2,17 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
 import { getStudentChapters } from "@/lib/db/learn";
+import { getServiceClient } from "@/lib/supabase";
+import type { Material } from "@/lib/db/types";
 import YouTubePlayer from "@/components/YouTubePlayer";
 
 export const dynamic = "force-dynamic";
+
+function fmtSize(bytes: number | null): string {
+  if (!bytes) return "";
+  const mb = bytes / (1024 * 1024);
+  return mb >= 1 ? `${mb.toFixed(1)}MB` : `${Math.round(bytes / 1024)}KB`;
+}
 
 export default async function ChapterPlayerPage({
   params,
@@ -20,16 +28,24 @@ export default async function ChapterPlayerPage({
   if (index === -1) notFound();
 
   const item = items[index];
-  if (!item.unlocked) redirect("/learn"); // 잠긴 강의는 접근 차단
+  if (!item.unlocked) redirect("/learn");
 
-  const { chapter, progress } = item;
+  const { chapter, videos } = item;
   const next = items[index + 1];
-  const nextHref = next ? `/learn/${next.chapter.id}` : null;
+
+  const db = getServiceClient();
+  const { data: materialsData } = await db
+    .from("materials")
+    .select("*")
+    .eq("chapter_id", chapterId)
+    .order("position", { ascending: true });
+  const materials = (materialsData as Material[]) ?? [];
+
+  const doneCount = videos.filter((v) => v.completed).length;
 
   return (
     <div className="lg:grid lg:grid-cols-[1fr_300px] lg:gap-6">
-      {/* 본문 — 플레이어 */}
-      <div className="space-y-5">
+      <div className="space-y-6">
         <div>
           <Link href="/learn" className="text-sm text-brand hover:underline">
             ← 강의 목록
@@ -43,32 +59,86 @@ export default async function ChapterPlayerPage({
               {chapter.description}
             </p>
           )}
+          {videos.length > 0 && (
+            <p className="mt-1 text-xs text-slate-400">
+              영상 {doneCount} / {videos.length} 완료 · 자유 시청
+            </p>
+          )}
         </div>
 
-        <YouTubePlayer
-          chapterId={chapter.id}
-          youtubeId={chapter.youtube_id}
-          initialPosition={progress?.last_position ?? 0}
-          initialWatchedSeconds={progress?.watched_seconds ?? 0}
-          initialCompleted={progress?.completed ?? false}
-          nextHref={nextHref}
-        />
+        {/* 영상 목록 (자유 시청) */}
+        {videos.length === 0 ? (
+          <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
+            등록된 영상이 없습니다.
+          </p>
+        ) : (
+          <div className="space-y-8">
+            {videos.map((v, i) => (
+              <div key={v.video.id} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-200 text-[10px] font-bold text-slate-500">
+                    {v.completed ? "✓" : i + 1}
+                  </span>
+                  <h2 className="text-sm font-semibold text-slate-700">
+                    {v.video.title || `영상 ${i + 1}`}
+                  </h2>
+                </div>
+                <YouTubePlayer
+                  videoId={v.video.id}
+                  youtubeId={v.video.youtube_id}
+                  initialPosition={v.progress?.last_position ?? 0}
+                  initialWatchedSeconds={v.progress?.watched_seconds ?? 0}
+                  initialCompleted={v.completed}
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
-        {chapter.material_url && (
-          <a
-            href={chapter.material_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="neu-btn inline-flex items-center gap-2 px-4 py-2.5 text-sm"
-          >
-            <span aria-hidden>📄</span> 강의자료 열기
-          </a>
+        {/* 강의 자료 */}
+        {materials.length > 0 && (
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold text-slate-700">강의 자료</h2>
+            <ul className="space-y-2">
+              {materials.map((m) => (
+                <li key={m.id}>
+                  <a
+                    href={`/api/materials/${m.id}`}
+                    className="neu-btn flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
+                  >
+                    <span className="flex items-center gap-2 truncate">
+                      <span aria-hidden>📄</span>
+                      <span className="truncate text-slate-700">{m.title}</span>
+                    </span>
+                    <span className="shrink-0 text-xs text-slate-400">
+                      {fmtSize(m.size_bytes)}
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* 챕터 완료 시 다음 강의 */}
+        {item.completed && next && (
+          <div className="neu-raised-sm flex items-center justify-between gap-3 rounded-2xl px-4 py-3">
+            <p className="text-sm font-medium text-emerald-700">
+              이 강의를 완료했습니다. 다음 강의가 열렸습니다.
+            </p>
+            <Link
+              href={`/learn/${next.chapter.id}`}
+              className="neu-btn-primary shrink-0 px-4 py-2 text-sm"
+            >
+              Next →
+            </Link>
+          </div>
         )}
       </div>
 
       {/* 사이드바 — 강의 목록 */}
       <aside className="mt-6 lg:mt-0">
-        <div className="neu-raised sticky top-20 h-full rounded-2xl p-3">
+        <div className="neu-raised sticky top-24 h-full rounded-2xl p-3">
           <p className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
             All
           </p>
@@ -92,9 +162,7 @@ export default async function ChapterPlayerPage({
                         ? "bg-emerald-100 text-emerald-600"
                         : active
                           ? "bg-blue-500 text-white"
-                          : it.unlocked
-                            ? "bg-slate-200 text-slate-500"
-                            : "bg-slate-200 text-slate-400"
+                          : "bg-slate-200 text-slate-400"
                     }`}
                   >
                     {it.completed ? "✓" : it.unlocked ? c.position + 1 : "🔒"}

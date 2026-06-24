@@ -19,7 +19,7 @@ export async function setChapterUnlock(
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
 
   const db = getServiceClient();
-  const { error } = await db.from("progress").upsert(
+  const { error } = await db.from("chapter_unlocks").upsert(
     {
       student_id: studentId,
       chapter_id: chapterId,
