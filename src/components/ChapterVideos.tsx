@@ -27,10 +27,10 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
             <button
               key={v.id}
               onClick={() => setActive(i)}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff] transition-shadow hover:shadow-[inset_2px_2px_5px_#dbe2ec,inset_-2px_-2px_5px_#ffffff] ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff] transition-shadow ${
                 i === active
                   ? "bg-blue-500 text-white"
-                  : "bg-slate-100 text-slate-600"
+                  : "bg-slate-100 text-slate-600 hover:shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff,inset_2px_2px_5px_#dbe2ec,inset_-2px_-2px_5px_#ffffff]"
               }`}
             >
               <span
