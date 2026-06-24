@@ -27,10 +27,10 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
             <button
               key={v.id}
               onClick={() => setActive(i)}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm transition-colors ${
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-sm ${
                 i === active
                   ? "bg-blue-500 text-white"
-                  : "bg-slate-200/60 text-slate-600 hover:bg-slate-200"
+                  : "bg-slate-200/60 text-slate-600"
               }`}
             >
               <span
