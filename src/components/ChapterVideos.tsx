@@ -36,7 +36,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
               <span
                 className={`flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold ${
                   v.completed
-                    ? "bg-emerald-100 text-emerald-600"
+                    ? "bg-lime-500 text-white"
                     : i === active
                       ? "bg-white/25 text-white"
                       : "bg-slate-300/70 text-slate-500"
