@@ -17,7 +17,8 @@
 @theme inline {
   --color-foreground: var(--foreground);
   --color-brand: var(--brand);
-  --font-sans: "Pretendard", system-ui, sans-serif;
+  /* 영어/숫자는 Outfit, 한글은 Pretendard로 글자 단위 폴백 */
+  --font-sans: var(--font-outfit), "Pretendard", system-ui, sans-serif;
   --font-display: var(--font-outfit), "Pretendard", sans-serif;
 }
 
