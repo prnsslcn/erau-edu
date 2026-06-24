@@ -36,6 +36,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# 강의 콘텐츠 업로드용 (git 추적 제외 — PDF 원본 등)
+/_content/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
