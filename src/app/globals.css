@@ -84,8 +84,8 @@
     @apply rounded-xl bg-slate-100 font-semibold text-slate-700 shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-shadow hover:shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff,inset_2px_2px_6px_#dbe2ec,inset_-2px_-2px_6px_#ffffff] disabled:opacity-60;
   }
 
-  /* 강조(Primary) 버튼 — 솔리드 블루 + hover 시 안쪽 살짝 음각 */
+  /* 강조(Primary) 버튼 — 솔리드 블루 + 자연스러운 색 변화 hover */
   .neu-btn-primary {
-    @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-shadow hover:shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff,inset_2px_2px_6px_#2563eb,inset_-2px_-2px_6px_#60a5fa] disabled:opacity-60;
+    @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-colors hover:bg-blue-600 disabled:opacity-60;
   }
 }
