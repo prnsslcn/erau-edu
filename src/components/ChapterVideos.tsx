@@ -89,21 +89,15 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
 
       {/* 활성 클립 플레이어 */}
       {current && (
-        <div>
-          {multi && (
-            <h2 className="mb-2 text-sm font-semibold text-slate-700">
-              {current.title || `클립 ${active + 1}`}
-            </h2>
-          )}
-          <YouTubePlayer
-            key={current.id}
-            videoId={current.id}
-            youtubeId={current.youtube_id}
-            initialPosition={current.last_position}
-            initialWatchedSeconds={current.watched_seconds}
-            initialCompleted={current.completed}
-          />
-        </div>
+        <YouTubePlayer
+          key={current.id}
+          videoId={current.id}
+          youtubeId={current.youtube_id}
+          initialPosition={current.last_position}
+          initialWatchedSeconds={current.watched_seconds}
+          initialCompleted={current.completed}
+          label={multi ? current.title || `클립 ${active + 1}` : undefined}
+        />
       )}
     </div>
   );

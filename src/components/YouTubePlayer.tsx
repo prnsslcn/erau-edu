@@ -49,12 +49,14 @@ export default function YouTubePlayer({
   initialPosition,
   initialWatchedSeconds,
   initialCompleted,
+  label,
 }: {
   videoId: string;
   youtubeId: string;
   initialPosition: number;
   initialWatchedSeconds: number;
   initialCompleted: boolean;
+  label?: string;
 }) {
   const router = useRouter();
   const mountRef = useRef<HTMLDivElement>(null);
@@ -188,6 +190,9 @@ export default function YouTubePlayer({
       </div>
 
       <div className="px-1 pb-1">
+        {label && (
+          <p className="mb-1.5 text-sm font-semibold text-slate-700">{label}</p>
+        )}
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-slate-700">
             시청 진도 {pct}%
