@@ -45,19 +45,20 @@ export default async function ChapterPlayerPage({
   const doneCount = videos.filter((v) => v.completed).length;
 
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_300px_260px] lg:gap-6">
-      {/* 1) 강의 영상 */}
-      <div className="space-y-6">
-        <div>
-          <Link href="/learn" className="text-sm text-brand hover:underline">
-            ← 강의 목록
-          </Link>
-          <h1 className="mt-2 text-xl font-bold tracking-tight">
+    <div>
+      <Link href="/learn" className="text-sm text-brand hover:underline">
+        ← 강의 목록
+      </Link>
+      <div className="mt-3 lg:grid lg:grid-cols-[minmax(0,1fr)_300px_260px] lg:items-start lg:gap-6">
+        {/* 1) 강의 영상 */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-4xl font-extrabold tracking-tight">
             <span className="text-slate-400">{chapter.position + 1}강 · </span>
             {chapter.title}
           </h1>
           {chapter.description && (
-            <p className="mt-1.5 text-sm leading-relaxed text-slate-500">
+            <p className="mt-1.5 text-base leading-relaxed text-slate-500">
               {chapter.description}
             </p>
           )}
@@ -118,7 +119,7 @@ export default async function ChapterPlayerPage({
 
       {/* 2) 강의 자료 */}
       <div className="mt-6 lg:mt-0">
-        <h2 className="text-sm font-semibold text-slate-700">강의 자료</h2>
+        <h2 className="text-3xl font-black text-slate-700">강의 자료</h2>
         {materials.length === 0 ? (
           <p className="mt-2 text-xs text-slate-400">등록된 자료가 없습니다.</p>
         ) : (
@@ -147,7 +148,7 @@ export default async function ChapterPlayerPage({
 
       {/* 3) ALL 사이드바 */}
       <aside className="mt-6 lg:mt-0">
-        <h2 className="text-sm font-semibold text-slate-700">전체 강의</h2>
+        <h2 className="text-3xl font-black text-slate-700">전체 강의</h2>
         <div className="neu-raised sticky top-24 mt-2 rounded-2xl p-3">
           <ul className="space-y-1">
             {items.map((it) => {
@@ -200,6 +201,7 @@ export default async function ChapterPlayerPage({
           </ul>
         </div>
       </aside>
+      </div>
     </div>
   );
 }
