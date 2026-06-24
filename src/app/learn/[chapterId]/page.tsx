@@ -114,7 +114,7 @@ export default async function ChapterPlayerPage({
                   >
                     <span className="flex items-center gap-2 truncate">
                       <span aria-hidden>📄</span>
-                      <span className="truncate text-slate-700">{m.title}</span>
+                      <span className="truncate text-slate-700 font-light">{m.title}</span>
                     </span>
                     <span className="shrink-0 text-xs text-slate-400">
                       {fmtSize(m.size_bytes)}
@@ -165,7 +165,7 @@ export default async function ChapterPlayerPage({
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
                       it.completed
-                        ? "bg-emerald-100 text-emerald-600"
+                        ? "bg-lime-500 text-white"
                         : active
                           ? "bg-blue-500 text-white"
                           : "bg-slate-200 text-slate-400"
