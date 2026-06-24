@@ -54,14 +54,14 @@
 
 /* ───── 뉴모피즘(Soft UI) 공통 클래스 ───── */
 @layer components {
-  /* 패널/카드/컨테이너 — 양면 그림자(연하게), hover 시 안쪽 살짝 음각 */
+  /* 패널/카드/컨테이너 — 양면 그림자(연하게) */
   .neu-raised {
-    @apply bg-slate-100 shadow-[6px_6px_16px_#e3e8f0,-6px_-6px_16px_#ffffff] transition-shadow hover:shadow-[6px_6px_16px_#e3e8f0,-6px_-6px_16px_#ffffff,inset_3px_3px_8px_#e3e8f0,inset_-3px_-3px_8px_#ffffff];
+    @apply bg-slate-100 shadow-[6px_6px_16px_#e3e8f0,-6px_-6px_16px_#ffffff];
   }
 
   /* 작은 카드 (KPI 카드, 리스트 행 등) */
   .neu-raised-sm {
-    @apply bg-slate-100 shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff] transition-shadow hover:shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff,inset_2px_2px_6px_#e5eaf1,inset_-2px_-2px_6px_#ffffff];
+    @apply bg-slate-100 shadow-[4px_4px_10px_#e5eaf1,-4px_-4px_10px_#ffffff];
   }
 
   /* 평면 요소 (잠긴 카드, 빈 상태 등) */
@@ -79,13 +79,13 @@
     @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-[15px] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-200;
   }
 
-  /* 기본 버튼 — 양면 그림자(연하게) */
+  /* 기본 버튼 — 양각 유지 + hover 시 안쪽 살짝 음각 */
   .neu-btn {
-    @apply rounded-xl bg-slate-100 font-semibold text-slate-700 shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
+    @apply rounded-xl bg-slate-100 font-semibold text-slate-700 shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-shadow hover:shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff,inset_2px_2px_6px_#dbe2ec,inset_-2px_-2px_6px_#ffffff] disabled:opacity-60;
   }
 
-  /* 강조(Primary) 버튼 — 솔리드 블루 + 양면 그림자(연하게) */
+  /* 강조(Primary) 버튼 — 솔리드 블루 + hover 시 안쪽 살짝 음각 */
   .neu-btn-primary {
-    @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-all hover:scale-105 hover:bg-blue-600 active:scale-95 disabled:opacity-60 disabled:hover:scale-100;
+    @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-shadow hover:shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff,inset_2px_2px_6px_#2563eb,inset_-2px_-2px_6px_#60a5fa] disabled:opacity-60;
   }
 }
