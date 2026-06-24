@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import NeuProgress from "@/components/NeuProgress";
 import UnlockToggle from "@/components/admin/UnlockToggle";
@@ -43,6 +43,7 @@ function ChapterRow({
   c: DetailChapter;
 }) {
   const [open, setOpen] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
   const status = statusOf(c);
   const showUnlock = c.is_published && !c.unlocked;
   const showRevert = c.is_published && c.overridden && !c.naturallyUnlocked;
@@ -95,14 +96,12 @@ function ChapterRow({
         </div>
       </button>
 
-      {/* 블라인드 펼침 영역 */}
+      {/* 블라인드 펼침 영역 (콘텐츠 실제 높이 측정해 max-height 애니메이션) */}
       <div
-        className={`grid transition-[grid-template-rows] duration-500 ease-out ${
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-        }`}
+        className="overflow-hidden transition-[max-height] duration-500 ease-out"
+        style={{ maxHeight: open ? (contentRef.current?.scrollHeight ?? 1000) : 0 }}
       >
-        <div className="overflow-hidden">
-          <div className="space-y-3 px-4 pb-3.5 pt-1">
+        <div ref={contentRef} className="space-y-3 px-4 pb-3.5 pt-1">
             {c.videos.length > 0 ? (
               <ul className="space-y-1.5">
                 {c.videos.map((v, i) => (
@@ -147,7 +146,6 @@ function ChapterRow({
             )}
           </div>
         </div>
-      </div>
     </li>
   );
 }
