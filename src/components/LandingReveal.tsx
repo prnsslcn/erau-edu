@@ -53,7 +53,7 @@ export default function LandingReveal({
         { transform: "none" },
       ],
       {
-        duration: 1400,
+        duration: 1600,
         easing: "cubic-bezier(0.65, 0, 0.35, 1)",
         fill: "both",
       },

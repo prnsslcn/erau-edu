@@ -128,7 +128,7 @@
 @layer utilities {
   /* both: 지연 동안 시작 상태(화면 밖) 유지 → 푸터 다음 마지막에 날아 들어옴 */
   .animate-plane-fly-in {
-    animation: plane-fly-in 1.3s cubic-bezier(0.22, 1, 0.36, 1) 3s both;
+    animation: plane-fly-in 1.3s cubic-bezier(0.22, 1, 0.36, 1) 2.4s both;
   }
 
   /* 박스 내용물 — 자식들이 시간차(stagger)로 물방울처럼 등장 */
