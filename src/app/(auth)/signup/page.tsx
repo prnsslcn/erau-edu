@@ -4,11 +4,11 @@ import AuthForm from "@/components/AuthForm";
 export default function StudentSignupPage() {
   return (
     <AuthForm
-      title="학생 회원가입"
-      subtitle="이름, 전화번호, 비밀번호 4자리만 입력하면 됩니다."
+      title="학생 가입 신청"
+      subtitle="이름, 전화번호, 비밀번호 4자리를 입력해 신청하면 관리자 승인 후 로그인할 수 있습니다."
       endpoint="/api/auth/student/signup"
-      redirectTo="/learn"
-      submitLabel="Sign Up"
+      redirectTo="/login"
+      submitLabel="가입 신청"
       fields={[
         {
           name: "name",

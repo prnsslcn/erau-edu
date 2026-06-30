@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { getDashboardSummary } from "@/lib/db/progress";
+import { getDashboardSummary, getPendingStudents } from "@/lib/db/progress";
 import NeuProgress from "@/components/NeuProgress";
+import PendingApprovals from "@/components/admin/PendingApprovals";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboard() {
-  const { totalChapters, rows } = await getDashboardSummary();
+  const [{ totalChapters, rows }, pending] = await Promise.all([
+    getDashboardSummary(),
+    getPendingStudents(),
+  ]);
 
   const avgPercent =
     rows.length > 0
@@ -14,6 +18,7 @@ export default async function AdminDashboard() {
 
   const kpis = [
     { label: "등록 학생", value: `${rows.length}`, unit: "명" },
+    { label: "승인 대기", value: `${pending.length}`, unit: "명" },
     { label: "공개 강의", value: `${totalChapters}`, unit: "개" },
     { label: "평균 진도율", value: `${avgPercent}`, unit: "%" },
   ];
@@ -28,7 +33,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* KPI 카드 — 각각 튀어나온 뉴모피즘 카드 */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
         {kpis.map((k) => (
           <div
             key={k.label}
@@ -44,6 +49,9 @@ export default async function AdminDashboard() {
           </div>
         ))}
       </div>
+
+      {/* 가입 승인 대기 (있을 때만 표시) */}
+      <PendingApprovals items={pending} />
 
       {rows.length === 0 ? (
         <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">

@@ -5,6 +5,8 @@ export interface Student {
   phone: string;
   password_hash: string;
   name: string;
+  approved: boolean;
+  approved_at: string | null;
   created_at: string;
 }
 

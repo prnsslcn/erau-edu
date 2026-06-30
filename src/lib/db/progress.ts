@@ -17,6 +17,24 @@ function chapterCompleted(
   return videoIds.length > 0 && videoIds.every((id) => completedVideoIds.has(id));
 }
 
+// 승인 대기 중인 가입 신청 학생
+export interface PendingStudent {
+  id: string;
+  name: string;
+  phone: string;
+  created_at: string;
+}
+
+export async function getPendingStudents(): Promise<PendingStudent[]> {
+  const db = getServiceClient();
+  const { data } = await db
+    .from("students")
+    .select("id, name, phone, created_at")
+    .eq("approved", false)
+    .order("created_at", { ascending: true });
+  return (data ?? []) as PendingStudent[];
+}
+
 export async function getDashboardSummary(): Promise<{
   totalChapters: number;
   rows: StudentProgressSummary[];
@@ -28,6 +46,7 @@ export async function getDashboardSummary(): Promise<{
       db
         .from("students")
         .select("id, name, phone, created_at")
+        .eq("approved", true)
         .order("created_at", { ascending: false }),
       db.from("chapters").select("id").eq("is_published", true),
       db.from("videos").select("id, chapter_id"),

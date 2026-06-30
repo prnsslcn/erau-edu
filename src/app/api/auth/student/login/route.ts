@@ -32,7 +32,7 @@ export async function POST(req: Request) {
   const db = getServiceClient();
   const { data: student } = await db
     .from("students")
-    .select("id, name, password_hash")
+    .select("id, name, password_hash, approved")
     .eq("phone", phone)
     .maybeSingle();
 
@@ -46,6 +46,14 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { error: "전화번호 또는 비밀번호가 올바르지 않습니다." },
       { status: 401 },
+    );
+  }
+
+  // 비밀번호는 맞지만 아직 관리자 승인 전이면 로그인 거부
+  if (!student.approved) {
+    return NextResponse.json(
+      { error: "관리자 승인 대기 중입니다. 승인 후 로그인할 수 있습니다." },
+      { status: 403 },
     );
   }
 

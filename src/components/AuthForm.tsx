@@ -3,7 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Phone, Lock, Mail, ArrowLeft, type LucideIcon } from "lucide-react";
+import {
+  User,
+  Phone,
+  Lock,
+  Mail,
+  ArrowLeft,
+  Check,
+  type LucideIcon,
+} from "lucide-react";
 
 const ICONS: Record<string, LucideIcon> = {
   user: User,
@@ -44,6 +52,7 @@ export default function AuthForm({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -67,12 +76,45 @@ export default function AuthForm({
         return;
       }
 
+      // 승인 대기(가입 신청) — 리다이렉트하지 않고 안내 화면 표시
+      if (data.pending) {
+        setDone(data.message ?? "신청이 접수되었습니다.");
+        setLoading(false);
+        return;
+      }
+
       router.push(redirectTo);
       router.refresh();
     } catch {
       setError("네트워크 오류입니다. 잠시 후 다시 시도하세요.");
       setLoading(false);
     }
+  }
+
+  if (done) {
+    return (
+      <div className="neu-raised rounded-3xl p-8 text-center">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+          <Check size={26} />
+        </div>
+        <h1 className="text-xl font-bold tracking-tight">가입 신청 완료</h1>
+        <p className="mx-auto mt-2 max-w-xs text-sm leading-relaxed text-slate-500">
+          {done}
+        </p>
+        <div className="mt-6 flex flex-col gap-2">
+          <Link href="/login" className="neu-btn-primary py-2.5 text-center text-[15px]">
+            로그인 화면으로
+          </Link>
+          <Link
+            href="/"
+            className="neu-btn inline-flex items-center justify-center gap-1.5 py-2.5 text-sm text-slate-600"
+          >
+            <ArrowLeft size={16} />
+            Home
+          </Link>
+        </div>
+      </div>
+    );
   }
 
   return (

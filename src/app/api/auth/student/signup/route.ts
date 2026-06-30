@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServiceClient } from "@/lib/supabase";
 import { hashPassword } from "@/lib/auth/password";
-import { createSession } from "@/lib/auth/session";
 import { studentSignupSchema } from "@/lib/validation";
 
 export async function POST(req: Request) {
@@ -32,10 +31,11 @@ export async function POST(req: Request) {
   }
 
   const password_hash = await hashPassword(password);
+  // 승인 대기 상태로 생성 (approved 기본값 false). 세션은 발급하지 않음.
   const { data: created, error } = await db
     .from("students")
     .insert({ name, phone, password_hash })
-    .select("id, name")
+    .select("id")
     .single();
 
   if (error || !created) {
@@ -45,6 +45,10 @@ export async function POST(req: Request) {
     );
   }
 
-  await createSession({ sub: created.id, role: "student", name: created.name });
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: true,
+    pending: true,
+    message:
+      "가입 신청이 접수되었습니다. 관리자 승인 후 로그인할 수 있습니다.",
+  });
 }
