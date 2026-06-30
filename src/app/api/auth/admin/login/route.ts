@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getServiceClient } from "@/lib/supabase";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
@@ -18,8 +18,18 @@ export async function POST(req: Request) {
 
   const { email, password } = parsed.data;
   const ip = clientIp(req.headers);
+  const db = getServiceClient();
 
-  const limit = await checkRateLimit({ identifier: email, ip });
+  // 레이트리밋 체크 + 관리자 조회를 병렬 실행
+  const [limit, { data: admin }] = await Promise.all([
+    checkRateLimit({ identifier: email, ip }),
+    db
+      .from("admins")
+      .select("id, name, password_hash")
+      .eq("email", email)
+      .maybeSingle(),
+  ]);
+
   if (limit.blocked) {
     return NextResponse.json(
       {
@@ -29,16 +39,11 @@ export async function POST(req: Request) {
     );
   }
 
-  const db = getServiceClient();
-  const { data: admin } = await db
-    .from("admins")
-    .select("id, name, password_hash")
-    .eq("email", email)
-    .maybeSingle();
-
   const ok = admin ? await verifyPassword(password, admin.password_hash) : false;
 
-  await recordAttempt({ identifier: email, kind: "admin", ip, success: ok });
+  after(() =>
+    recordAttempt({ identifier: email, kind: "admin", ip, success: ok }),
+  );
 
   if (!ok || !admin) {
     return NextResponse.json(

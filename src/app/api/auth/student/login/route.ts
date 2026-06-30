@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { getServiceClient } from "@/lib/supabase";
 import { verifyPassword } from "@/lib/auth/password";
 import { createSession } from "@/lib/auth/session";
@@ -18,8 +18,18 @@ export async function POST(req: Request) {
 
   const { phone, password } = parsed.data;
   const ip = clientIp(req.headers);
+  const db = getServiceClient();
 
-  const limit = await checkRateLimit({ identifier: phone, ip });
+  // 레이트리밋 체크 + 학생 조회를 병렬 실행 (직렬 왕복 제거)
+  const [limit, { data: student }] = await Promise.all([
+    checkRateLimit({ identifier: phone, ip }),
+    db
+      .from("students")
+      .select("id, name, password_hash, approved")
+      .eq("phone", phone)
+      .maybeSingle(),
+  ]);
+
   if (limit.blocked) {
     return NextResponse.json(
       {
@@ -29,18 +39,14 @@ export async function POST(req: Request) {
     );
   }
 
-  const db = getServiceClient();
-  const { data: student } = await db
-    .from("students")
-    .select("id, name, password_hash, approved")
-    .eq("phone", phone)
-    .maybeSingle();
-
   const ok = student
     ? await verifyPassword(password, student.password_hash)
     : false;
 
-  await recordAttempt({ identifier: phone, kind: "student", ip, success: ok });
+  // 로그인 기록은 응답 후로 미뤄 응답 지연에서 제외
+  after(() =>
+    recordAttempt({ identifier: phone, kind: "student", ip, success: ok }),
+  );
 
   if (!ok || !student) {
     return NextResponse.json(

@@ -36,28 +36,29 @@ export async function checkRateLimit(args: {
   const db = getServiceClient();
   const since = new Date(Date.now() - WINDOW_MINUTES * 60_000).toISOString();
 
-  const { count: idFails } = await db
-    .from("login_attempts")
-    .select("*", { count: "exact", head: true })
-    .eq("identifier", args.identifier)
-    .eq("success", false)
-    .gte("attempted_at", since);
-
-  if ((idFails ?? 0) >= MAX_FAILS_PER_ID) {
-    return { blocked: true, retryAfterMinutes: WINDOW_MINUTES };
-  }
-
-  if (args.ip) {
-    const { count: ipFails } = await db
+  // 식별자/IP 실패 카운트를 병렬 조회 — 직렬 왕복 제거
+  const [idRes, ipRes] = await Promise.all([
+    db
       .from("login_attempts")
       .select("*", { count: "exact", head: true })
-      .eq("ip", args.ip)
+      .eq("identifier", args.identifier)
       .eq("success", false)
-      .gte("attempted_at", since);
+      .gte("attempted_at", since),
+    args.ip
+      ? db
+          .from("login_attempts")
+          .select("*", { count: "exact", head: true })
+          .eq("ip", args.ip)
+          .eq("success", false)
+          .gte("attempted_at", since)
+      : Promise.resolve({ count: 0 as number | null }),
+  ]);
 
-    if ((ipFails ?? 0) >= MAX_FAILS_PER_IP) {
-      return { blocked: true, retryAfterMinutes: WINDOW_MINUTES };
-    }
+  if ((idRes.count ?? 0) >= MAX_FAILS_PER_ID) {
+    return { blocked: true, retryAfterMinutes: WINDOW_MINUTES };
+  }
+  if (args.ip && (ipRes.count ?? 0) >= MAX_FAILS_PER_IP) {
+    return { blocked: true, retryAfterMinutes: WINDOW_MINUTES };
   }
 
   return { blocked: false, retryAfterMinutes: 0 };
