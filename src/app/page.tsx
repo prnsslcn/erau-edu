@@ -9,7 +9,10 @@ export default async function Home() {
   if (session?.role === "admin") redirect("/admin");
 
   return (
-    <main className="relative flex flex-1 items-center overflow-hidden px-6 py-16 lg:px-16">
+    <main
+      data-landing
+      className="relative flex flex-1 items-center overflow-hidden px-6 py-16 lg:px-16"
+    >
       {/* 우측 비행기 도형 */}
       <div
         aria-hidden

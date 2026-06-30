@@ -90,6 +90,26 @@
   }
 }
 
+/* 전체 프로젝트 — 스크롤바 UI 숨김 (스크롤 기능은 유지) */
+* {
+  scrollbar-width: none; /* Firefox */
+}
+*::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+  width: 0;
+  height: 0;
+}
+html {
+  -ms-overflow-style: none; /* 구형 Edge/IE */
+}
+
+/* 랜딩(/)은 단일 화면 — 진입 애니메이션(푸터 슬라이드 등)으로 인한 스크롤 자체를 차단.
+   :has로 랜딩에만 적용 → 다른 페이지 스크롤엔 영향 없음 */
+html:has(main[data-landing]),
+html:has(main[data-landing]) body {
+  overflow: hidden;
+}
+
 /* ── 랜딩 진입 애니메이션 ── */
 /* 비행기가 북동(우상단 화면 밖)에서 남서로 대각선 날아 들어옴 */
 @keyframes plane-fly-in {
