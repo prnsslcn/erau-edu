@@ -68,17 +68,17 @@ export default async function LearnHome() {
                 >
                   {/* 앞면 */}
                   <div className="flex items-start justify-between gap-2">
-                    <span className="text-xs font-semibold text-slate-400">
+                    <span className="text-sm font-semibold text-slate-400">
                       {chapter.position + 1}강
                     </span>
                     <span
-                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${status.cls}`}
+                      className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ring-1 ring-inset ${status.cls}`}
                     >
                       {status.label}
                     </span>
                   </div>
                   <h3
-                    className={`mt-3 line-clamp-2 text-lg font-semibold leading-snug ${
+                    className={`mt-3 line-clamp-2 text-2xl font-semibold leading-snug ${
                       unlocked ? "text-slate-700" : "text-slate-400"
                     }`}
                   >
@@ -87,14 +87,14 @@ export default async function LearnHome() {
 
                   <div className="mt-auto pt-3">
                     {materialsOnly ? (
-                      <p className="text-xs text-slate-400">강의 자료</p>
+                      <p className="text-sm text-slate-400">강의 자료</p>
                     ) : !unlocked ? (
-                      <p className="text-xs text-slate-400">
+                      <p className="text-sm text-slate-400">
                         🔒 이전 강의 완료 시 열림
                       </p>
                     ) : videos.length > 0 ? (
                       <>
-                        <div className="mb-1 flex justify-between text-xs text-slate-400">
+                        <div className="mb-1 flex justify-between text-sm text-slate-400">
                           <span>
                             Clip {doneVideos} / {videos.length}
                           </span>

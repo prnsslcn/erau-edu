@@ -14,6 +14,11 @@ function fmtSize(bytes: number | null): string {
   return mb >= 1 ? `${mb.toFixed(1)}MB` : `${Math.round(bytes / 1024)}KB`;
 }
 
+// 자료 제목 앞 "Lesson 03 · " 같은 넘버링 접두사 제거 (표시용)
+function stripLessonNo(title: string): string {
+  return title.replace(/^Lesson\b[^·]*·\s*/i, "").trim() || title;
+}
+
 export default async function ChapterPlayerPage({
   params,
 }: {
@@ -115,7 +120,7 @@ export default async function ChapterPlayerPage({
                   <span className="flex min-w-0 items-center gap-2">
                     <span aria-hidden>📄</span>
                     <span className="truncate font-light text-slate-700">
-                      {m.title}
+                      {stripLessonNo(m.title)}
                     </span>
                   </span>
                   <span className="shrink-0 text-xs text-slate-400">

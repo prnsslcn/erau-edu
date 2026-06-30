@@ -4,6 +4,17 @@ import { getSession } from "@/lib/auth/session";
 import { getStudentChapters } from "@/lib/db/learn";
 import type { Material } from "@/lib/db/types";
 
+// 다운로드 파일명 정제: "Lesson 04 · " 넘버링 제거 + 가운뎃점→하이픈(ASCII) + .pdf 보장
+function downloadName(title: string): string {
+  let name = title.replace(/^Lesson\b[^·]*·\s*/i, "").trim() || title;
+  name = name
+    .replace(/[·•]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!/\.pdf$/i.test(name)) name += ".pdf";
+  return name;
+}
+
 // 자료 다운로드 — 권한 확인 후 60초 서명 URL로 리다이렉트.
 export async function GET(
   _req: Request,
@@ -38,7 +49,7 @@ export async function GET(
 
   const { data: signed, error } = await db.storage
     .from("materials")
-    .createSignedUrl(mat.storage_path, 60, { download: mat.title });
+    .createSignedUrl(mat.storage_path, 60, { download: downloadName(mat.title) });
 
   if (error || !signed) {
     return NextResponse.json({ error: "다운로드 링크 생성 실패" }, { status: 500 });
