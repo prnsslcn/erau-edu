@@ -12,7 +12,7 @@ export default async function Home() {
       {/* 우측 비행기 도형 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute right-[-7%] top-[30%] hidden -translate-y-1/2 lg:block"
+        className="pointer-events-none absolute right-[-15%] top-[30%] hidden -translate-y-1/2 lg:block"
       >
         <svg
           viewBox="0 0 257.24 307"
