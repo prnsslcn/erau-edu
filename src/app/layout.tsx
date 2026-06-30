@@ -11,6 +11,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.eraukorea.com"),
   title: "ERAU Pathway Program",
   description:
     "From Dream to Flight Deck. Embry-Riddle Aeronautical University 진학을 준비하는 학생을 위한 입학 전 온라인 교육 과정 (한국 독립 운영).",
