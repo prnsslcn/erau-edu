@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// 전체화면 라이트 패널이 뷰포트 끝에서 로그인 박스 위치/크기로 수축 →
-// 박스 모양이 되면 내용물(children)을 페이드인.
+// 전체화면(고정 오버레이)이 뷰포트 끝에서 로그인 박스 위치/크기로 수축 →
+// 박스 모양이 되면 본체 내용물(children)을 물방울 stagger로 등장.
+// 오버레이는 position:fixed라 main의 overflow-hidden에 클리핑되지 않고 전체 뷰포트를 사용.
+// WAAPI 사용 → 클라이언트 네비게이션(로그아웃 등) 재렌더와 무관하게 동작.
 export default function LandingReveal({
   className,
   children,
@@ -11,57 +13,83 @@ export default function LandingReveal({
   className?: string;
   children: React.ReactNode;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const boxRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const [revealed, setRevealed] = useState(false);
+  const [collapsing, setCollapsing] = useState(true); // 오버레이 표시 여부
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const box = boxRef.current;
+    const ov = overlayRef.current;
+    if (!box) return;
 
     const reduce = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    if (reduce) {
-      el.style.opacity = "1";
+    const r = box.getBoundingClientRect();
+    if (reduce || !ov || r.width === 0 || r.height === 0) {
       setRevealed(true);
+      setCollapsing(false);
       return;
     }
 
-    // 자연 위치/크기 측정
-    const r = el.getBoundingClientRect();
+    // 오버레이를 박스 자연 크기/위치에 맞춤
+    ov.style.inset = "auto";
+    ov.style.left = `${r.left}px`;
+    ov.style.top = `${r.top}px`;
+    ov.style.width = `${r.width}px`;
+    ov.style.height = `${r.height}px`;
+    ov.style.transformOrigin = "0 0";
+
     const sx = window.innerWidth / r.width;
     const sy = window.innerHeight / r.height;
 
-    // 박스를 전체화면 크기로 확대(좌상단 → 뷰포트 0,0)
-    el.style.transformOrigin = "0 0";
-    el.style.transform = `translate(${-r.left}px, ${-r.top}px) scale(${sx}, ${sy})`;
-    el.style.transition = "none";
-    el.style.opacity = "1";
-    void el.offsetWidth; // reflow
+    // 전체 뷰포트 → 박스 자리로 수축
+    const anim = ov.animate(
+      [
+        {
+          transform: `translate(${-r.left}px, ${-r.top}px) scale(${sx}, ${sy})`,
+        },
+        { transform: "none" },
+      ],
+      {
+        duration: 1400,
+        easing: "cubic-bezier(0.65, 0, 0.35, 1)",
+        fill: "both",
+      },
+    );
 
-    // 다음 프레임에 자연 크기로 수축 (시작~끝 고른 ease-in-out으로 천천히)
-    const raf = requestAnimationFrame(() => {
-      el.style.transition = "transform 1.4s cubic-bezier(0.65, 0, 0.35, 1)";
-      el.style.transform = "none";
-    });
-    // 수축이 끝날 즈음 내용물 등장
-    const t = window.setTimeout(() => setRevealed(true), 1350);
+    let cancelled = false;
+    anim.finished
+      .then(() => {
+        if (cancelled) return;
+        setCollapsing(false); // 오버레이 제거
+        setRevealed(true); // 본체 내용물 등장
+      })
+      .catch(() => {});
 
     return () => {
-      cancelAnimationFrame(raf);
-      window.clearTimeout(t);
+      cancelled = true;
+      anim.cancel();
     };
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className={className}
-      style={{ opacity: 0, willChange: "transform" }}
-    >
-      <div className={revealed ? "landing-stagger" : "opacity-0"}>
-        {children}
+    <>
+      <div ref={boxRef} className={className}>
+        <div className={revealed ? "landing-stagger" : "opacity-0"}>
+          {children}
+        </div>
       </div>
-    </div>
+
+      {collapsing && (
+        <div
+          ref={overlayRef}
+          aria-hidden
+          className={`pointer-events-none fixed z-50 ${className ?? ""}`}
+          style={{ inset: 0, willChange: "transform" }}
+        />
+      )}
+    </>
   );
 }
