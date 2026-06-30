@@ -44,7 +44,11 @@ export default function ChapterGrid({ items }: { items: TileItem[] }) {
 
   return (
     <div className="relative" onMouseLeave={() => setHovered(null)}>
-      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* 원래 카드들 — 확장 시 부드럽게 사라짐 */}
+      <ul
+        className="grid grid-cols-1 gap-4 transition-opacity duration-300 sm:grid-cols-2 lg:grid-cols-3"
+        style={{ opacity: active ? 0 : 1 }}
+      >
         {items.map((it, i) => {
           const st = statusOf(it);
           const card = (
@@ -116,7 +120,8 @@ export default function ChapterGrid({ items }: { items: TileItem[] }) {
           className="pointer-events-none absolute inset-0 z-20 transition-[transform,opacity] duration-300 ease-out"
           style={{
             transformOrigin: `${ox}% ${oy}%`,
-            transform: active ? "scale(1)" : "scale(0.35)",
+            // 카드 한 칸 크기(가로 1/COLS · 세로 1/rows)에서 시작 → 그 카드가 늘어나는 느낌
+            transform: active ? "scale(1, 1)" : `scale(${1 / COLS}, ${1 / rows})`,
             opacity: active ? 1 : 0,
           }}
         >
