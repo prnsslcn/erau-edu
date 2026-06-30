@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth/session";
+import LandingReveal from "@/components/LandingReveal";
 
 export default async function Home() {
   const session = await getSession();
@@ -12,12 +13,12 @@ export default async function Home() {
       {/* 우측 비행기 도형 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute right-[-15%] top-[30%] hidden -translate-y-1/2 lg:block"
+        className="animate-plane-fly-in pointer-events-none absolute right-[-10%] top-[110%] hidden -translate-y-1/2 lg:block"
       >
         <svg
           viewBox="0 0 257.24 307"
           fill="currentColor"
-          className="h-[125vh] w-auto rotate-[35deg] text-blue-200"
+          className="h-[125vh] w-auto rotate-[215deg] text-blue-200"
         >
           <path
             fillRule="evenodd"
@@ -28,7 +29,7 @@ export default async function Home() {
 
       {/* 좌측 1/3 — 브랜드 + 로그인 박스 */}
       <div className="relative z-10 mx-auto w-full max-w-lg lg:mx-0 lg:ml-[10%]">
-        <div className="neu-raised rounded-3xl p-7 sm:p-12">
+        <LandingReveal className="neu-raised rounded-3xl p-7 sm:p-12">
           <p className="text-sm font-semibold tracking-wide text-brand">
             입학 전 온라인 교육 과정
           </p>
@@ -57,7 +58,7 @@ export default async function Home() {
               Admin
             </Link>
           </p>
-        </div>
+        </LandingReveal>
       </div>
     </main>
   );

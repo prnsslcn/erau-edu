@@ -89,3 +89,81 @@
     @apply rounded-xl bg-blue-500 font-semibold text-white shadow-[5px_5px_12px_#e3e8f0,-5px_-5px_12px_#ffffff] transition-colors hover:bg-blue-600 disabled:opacity-60;
   }
 }
+
+/* ── 랜딩 진입 애니메이션 ── */
+/* 비행기가 북동(우상단 화면 밖)에서 남서로 대각선 날아 들어옴 */
+@keyframes plane-fly-in {
+  from {
+    opacity: 0;
+    transform: translate(38%, -95%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+}
+
+/* 물방울처럼 잔잔히 생겨나는 등장 (오버슈트 없이 부드럽게) */
+@keyframes droplet {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 푸터가 화면 밖(아래)에서 슈욱 올라옴 */
+@keyframes footer-slide {
+  from {
+    transform: translateY(125%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@layer utilities {
+  /* both: 지연 동안 시작 상태(화면 밖) 유지 → 푸터 다음 마지막에 날아 들어옴 */
+  .animate-plane-fly-in {
+    animation: plane-fly-in 1.3s cubic-bezier(0.22, 1, 0.36, 1) 3s both;
+  }
+
+  /* 박스 내용물 — 자식들이 시간차(stagger)로 물방울처럼 등장 */
+  .landing-stagger > * {
+    animation: droplet 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .landing-stagger > *:nth-child(1) {
+    animation-delay: 0ms;
+  }
+  .landing-stagger > *:nth-child(2) {
+    animation-delay: 110ms;
+  }
+  .landing-stagger > *:nth-child(3) {
+    animation-delay: 220ms;
+  }
+  .landing-stagger > *:nth-child(4) {
+    animation-delay: 330ms;
+  }
+  .landing-stagger > *:nth-child(5) {
+    animation-delay: 440ms;
+  }
+  .landing-stagger > *:nth-child(6) {
+    animation-delay: 550ms;
+  }
+
+  /* 푸터 슬라이드 (박스·내용물 다음에) */
+  .animate-footer-slide {
+    animation: footer-slide 0.75s cubic-bezier(0.22, 1, 0.36, 1) 2.2s both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-plane-fly-in,
+  .landing-stagger > *,
+  .animate-footer-slide {
+    animation: none;
+  }
+}
