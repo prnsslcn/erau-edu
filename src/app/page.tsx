@@ -12,12 +12,12 @@ export default async function Home() {
       {/* 우측 비행기 도형 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute right-[-16%] top-1/2 hidden -translate-y-1/2 lg:block"
+        className="pointer-events-none absolute right-[-7%] top-[30%] hidden -translate-y-1/2 lg:block"
       >
         <svg
           viewBox="0 0 257.24 307"
           fill="currentColor"
-          className="h-[140vh] w-auto rotate-[35deg] text-blue-200"
+          className="h-[125vh] w-auto rotate-[35deg] text-blue-200"
         >
           <path
             fillRule="evenodd"
