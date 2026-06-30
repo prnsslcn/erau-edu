@@ -15,12 +15,20 @@ export default async function AdminLayout({
     <>
       <header className="neu-header sticky top-0 z-10">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
-          <div className="flex items-center gap-4 sm:gap-12">
+          <div className="flex items-center gap-4 sm:gap-8">
             <Link
               href="/admin"
-              className="font-display text-xl font-extrabold tracking-tight sm:text-4xl"
+              className="shrink-0 font-display text-base tracking-tight sm:text-2xl"
             >
-              ERAU EduPrep
+              <span className="font-extrabold text-slate-800">ERAU</span>
+              <span className="hidden font-light text-slate-500 sm:inline">
+                {" "}
+                Pathway Program
+              </span>
+              <span className="font-light text-slate-500 sm:hidden">
+                {" "}
+                Pathway
+              </span>
             </Link>
             <nav className="flex items-center gap-3 text-sm sm:gap-8 sm:text-base">
               <Link href="/admin" className="text-slate-500 transition-colors hover:text-slate-900">

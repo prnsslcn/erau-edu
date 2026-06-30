@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
+import SiteFooter from "@/components/SiteFooter";
 
 // 영문 디스플레이 폰트 (aftc 프로젝트와 동일)
 const outfit = Outfit({
@@ -10,9 +11,9 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "ERAU 입학 전 교육",
+  title: "ERAU Pathway Program",
   description:
-    "Embry-Riddle 진학 준비 학생을 위한 입학 전 온라인 교육 과정",
+    "From Dream to Flight Deck. Embry-Riddle Aeronautical University 진학을 준비하는 학생을 위한 입학 전 온라인 교육 과정 (한국 독립 운영).",
   // 폐쇄형 사이트 — 검색엔진 색인 차단
   robots: {
     index: false,
@@ -29,7 +30,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${outfit.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-slate-100">{children}</body>
+      <body className="min-h-full flex flex-col bg-slate-100">
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }

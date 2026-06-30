@@ -33,13 +33,16 @@ export default async function Home() {
             입학 전 온라인 교육 과정
           </p>
           <h1 className="mt-4 font-display leading-[1.05] tracking-tight">
-            <span className="block text-4xl font-extrabold text-slate-800 sm:text-6xl">
-              Embry-Riddle
+            <span className="block text-5xl font-extrabold text-slate-800 sm:text-7xl">
+              ERAU
             </span>
-            <span className="block text-4xl font-light text-slate-600 sm:text-6xl">
-              EduPrep
+            <span className="block text-2xl font-light text-slate-600 sm:text-4xl">
+              Pathway Program
             </span>
           </h1>
+          <p className="mt-5 font-display text-lg font-medium text-brand sm:text-xl">
+            From Dream to Flight Deck.
+          </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/login" className="neu-btn-primary px-7 py-3 text-[15px]">
               Login
