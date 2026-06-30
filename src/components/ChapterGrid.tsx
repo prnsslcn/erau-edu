@@ -67,10 +67,10 @@ export default function ChapterGrid({ items }: { items: TileItem[] }) {
 
   return (
     <div ref={gridRef} className="relative" onMouseLeave={leave}>
-      {/* 원래 카드들 — 확장 시 부드럽게 사라짐 */}
+      {/* 원래 카드들 — 확장 시 빠르게 사라져 겹침(고스팅) 방지 */}
       <ul
-        className="grid grid-cols-1 gap-4 transition-opacity duration-300 sm:grid-cols-2 lg:grid-cols-3"
-        style={{ opacity: expanded ? 0 : 1 }}
+        className="grid grid-cols-1 gap-4 transition-opacity duration-150 sm:grid-cols-2 lg:grid-cols-3"
+        style={{ opacity: expanded ? 0 : 1, visibility: expanded ? "hidden" : "visible", transitionProperty: "opacity, visibility" }}
       >
         {items.map((it, i) => {
           const st = statusOf(it);
@@ -140,8 +140,15 @@ export default function ChapterGrid({ items }: { items: TileItem[] }) {
       {/* 호버한 카드 자리에서 width/height가 그리드 전체로 늘어나는 패널 */}
       {item && status && rect && (
         <div
-          className="pointer-events-none absolute z-20 transition-[left,top,width,height,opacity] duration-300 ease-out"
-          style={{ ...box, opacity: expanded ? 1 : 0 }}
+          className="pointer-events-none absolute z-20"
+          style={{
+            ...box,
+            opacity: expanded ? 1 : 0,
+            // 박스(위치/크기)는 천천히 늘어나고, 불투명도는 빠르게 차서 원래 카드와 겹쳐 보이지 않게
+            transition: expanded
+              ? "left 320ms ease-out, top 320ms ease-out, width 320ms ease-out, height 320ms ease-out, opacity 120ms ease-out"
+              : "left 260ms ease-in, top 260ms ease-in, width 260ms ease-in, height 260ms ease-in, opacity 200ms ease-in",
+          }}
         >
           <div className="neu-raised flex h-full w-full gap-6 overflow-hidden rounded-2xl p-6">
             <div className="hidden aspect-video w-1/2 shrink-0 overflow-hidden rounded-xl bg-slate-800 sm:block">
