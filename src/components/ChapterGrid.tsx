@@ -27,33 +27,56 @@ function statusOf(it: TileItem) {
   return { label: "Locked", cls: "bg-slate-400/10 text-slate-400 ring-slate-300/40" };
 }
 
-const COLS = 3; // lg 기준 (호버 확장은 데스크톱)
+type Rect = { l: number; t: number; w: number; h: number };
 
 export default function ChapterGrid({ items }: { items: TileItem[] }) {
   const [hovered, setHovered] = useState<number | null>(null);
-  // 닫힐 때도 마지막 카드 위치에서 줄어들도록 인덱스 유지
-  const lastIdx = useRef(0);
-  if (hovered !== null) lastIdx.current = hovered;
+  const [rect, setRect] = useState<Rect | null>(null); // 호버한 카드의 그리드 내 위치/크기
+  const [expanded, setExpanded] = useState(false); // 카드 → 그리드 전체로 늘어났는지
+  const gridRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
 
-  const active = hovered !== null;
-  const item = items[lastIdx.current];
-  const rows = Math.ceil(items.length / COLS);
-  const ox = ((lastIdx.current % COLS) + 0.5) / COLS * 100;
-  const oy = (Math.floor(lastIdx.current / COLS) + 0.5) / rows * 100;
+  function enter(i: number, el: HTMLElement) {
+    const g = gridRef.current?.getBoundingClientRect();
+    if (!g) return;
+    const c = el.getBoundingClientRect();
+    setRect({ l: c.left - g.left, t: c.top - g.top, w: c.width, h: c.height });
+    setHovered(i);
+    if (!expanded) {
+      // 카드 크기에서 시작 → 다음 프레임에 그리드 전체로 늘림(width/height 트랜지션)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() =>
+        requestAnimationFrame(() => setExpanded(true)),
+      );
+    }
+  }
+
+  function leave() {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    setExpanded(false); // 마지막 카드 자리로 다시 줄어들며 사라짐
+  }
+
+  const item = hovered !== null ? items[hovered] : null;
   const status = item ? statusOf(item) : null;
 
+  // 확장 패널 위치/크기: 펼치면 그리드 전체, 아니면 호버한 카드 자리
+  const box: React.CSSProperties =
+    expanded || !rect
+      ? { left: 0, top: 0, width: "100%", height: "100%" }
+      : { left: rect.l, top: rect.t, width: rect.w, height: rect.h };
+
   return (
-    <div className="relative" onMouseLeave={() => setHovered(null)}>
+    <div ref={gridRef} className="relative" onMouseLeave={leave}>
       {/* 원래 카드들 — 확장 시 부드럽게 사라짐 */}
       <ul
         className="grid grid-cols-1 gap-4 transition-opacity duration-300 sm:grid-cols-2 lg:grid-cols-3"
-        style={{ opacity: active ? 0 : 1 }}
+        style={{ opacity: expanded ? 0 : 1 }}
       >
         {items.map((it, i) => {
           const st = statusOf(it);
           const card = (
             <div
-              onMouseEnter={() => setHovered(i)}
+              onMouseEnter={(e) => enter(i, e.currentTarget)}
               className={`flex h-full min-h-[150px] flex-col rounded-2xl p-5 transition-shadow ${
                 it.unlocked ? "neu-raised-sm" : "neu-flat"
               }`}
@@ -114,18 +137,13 @@ export default function ChapterGrid({ items }: { items: TileItem[] }) {
         })}
       </ul>
 
-      {/* 호버 시 카드에서 부드럽게 커지며 그리드를 꽉 채우는 확장 패널 */}
-      {item && status && (
+      {/* 호버한 카드 자리에서 width/height가 그리드 전체로 늘어나는 패널 */}
+      {item && status && rect && (
         <div
-          className="pointer-events-none absolute inset-0 z-20 transition-[transform,opacity] duration-300 ease-out"
-          style={{
-            transformOrigin: `${ox}% ${oy}%`,
-            // 카드 한 칸 크기(가로 1/COLS · 세로 1/rows)에서 시작 → 그 카드가 늘어나는 느낌
-            transform: active ? "scale(1, 1)" : `scale(${1 / COLS}, ${1 / rows})`,
-            opacity: active ? 1 : 0,
-          }}
+          className="pointer-events-none absolute z-20 transition-[left,top,width,height,opacity] duration-300 ease-out"
+          style={{ ...box, opacity: expanded ? 1 : 0 }}
         >
-          <div className="neu-raised flex h-full w-full gap-6 rounded-2xl p-6">
+          <div className="neu-raised flex h-full w-full gap-6 overflow-hidden rounded-2xl p-6">
             <div className="hidden aspect-video w-1/2 shrink-0 overflow-hidden rounded-xl bg-slate-800 sm:block">
               {item.thumbId ? (
                 // eslint-disable-next-line @next/next/no-img-element
