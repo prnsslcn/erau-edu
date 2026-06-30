@@ -9,10 +9,15 @@ import {
   deleteChapter,
   addVideo,
   deleteVideo,
+  moveVideo,
+  moveMaterial,
   uploadMaterial,
   deleteMaterial,
   type ActionResult,
 } from "@/app/admin/(dash)/chapters/actions";
+
+const moveBtnCls =
+  "shrink-0 rounded-md px-1.5 text-slate-400 transition-colors hover:text-slate-700 disabled:opacity-30 disabled:hover:text-slate-400";
 
 export interface ChapterWithContent extends Chapter {
   videos: Video[];
@@ -243,6 +248,13 @@ function VideoSection({
     });
   }
 
+  function onMove(id: string, dir: "up" | "down") {
+    start(async () => {
+      await moveVideo(id, dir);
+      refresh();
+    });
+  }
+
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-slate-500">
@@ -262,13 +274,31 @@ function VideoSection({
                   ({v.youtube_id})
                 </span>
               </span>
-              <button
-                onClick={() => onDelete(v.id)}
-                disabled={pending}
-                className="shrink-0 text-xs text-red-500 hover:underline disabled:opacity-50"
-              >
-                삭제
-              </button>
+              <span className="flex shrink-0 items-center gap-0.5">
+                <button
+                  onClick={() => onMove(v.id, "up")}
+                  disabled={pending || i === 0}
+                  className={moveBtnCls}
+                  aria-label="위로"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => onMove(v.id, "down")}
+                  disabled={pending || i === videos.length - 1}
+                  className={moveBtnCls}
+                  aria-label="아래로"
+                >
+                  ↓
+                </button>
+                <button
+                  onClick={() => onDelete(v.id)}
+                  disabled={pending}
+                  className="ml-1 text-xs text-red-500 hover:underline disabled:opacity-50"
+                >
+                  삭제
+                </button>
+              </span>
             </li>
           ))}
         </ul>
@@ -332,6 +362,13 @@ function MaterialSection({
     });
   }
 
+  function onMove(id: string, dir: "up" | "down") {
+    start(async () => {
+      await moveMaterial(id, dir);
+      refresh();
+    });
+  }
+
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-slate-500">
@@ -339,7 +376,7 @@ function MaterialSection({
       </p>
       {materials.length > 0 && (
         <ul className="space-y-1.5">
-          {materials.map((m) => (
+          {materials.map((m, i) => (
             <li
               key={m.id}
               className="flex items-center justify-between gap-2 rounded-lg bg-slate-200/40 px-3 py-1.5 text-sm"
@@ -350,13 +387,31 @@ function MaterialSection({
                   {fmtSize(m.size_bytes)}
                 </span>
               </span>
-              <button
-                onClick={() => onDelete(m.id)}
-                disabled={pending}
-                className="shrink-0 text-xs text-red-500 hover:underline disabled:opacity-50"
-              >
-                삭제
-              </button>
+              <span className="flex shrink-0 items-center gap-0.5">
+                <button
+                  onClick={() => onMove(m.id, "up")}
+                  disabled={pending || i === 0}
+                  className={moveBtnCls}
+                  aria-label="위로"
+                >
+                  ↑
+                </button>
+                <button
+                  onClick={() => onMove(m.id, "down")}
+                  disabled={pending || i === materials.length - 1}
+                  className={moveBtnCls}
+                  aria-label="아래로"
+                >
+                  ↓
+                </button>
+                <button
+                  onClick={() => onDelete(m.id)}
+                  disabled={pending}
+                  className="ml-1 text-xs text-red-500 hover:underline disabled:opacity-50"
+                >
+                  삭제
+                </button>
+              </span>
             </li>
           ))}
         </ul>

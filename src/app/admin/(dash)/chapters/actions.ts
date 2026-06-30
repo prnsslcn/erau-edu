@@ -185,6 +185,54 @@ export async function addVideo(
   return { ok: true };
 }
 
+type Dir = "up" | "down";
+
+// 같은 챕터 내 항목 순서 변경: 인접 항목과 교환 후 position을 0..n으로 정규화
+async function moveRow(
+  table: "videos" | "materials",
+  id: string,
+  dir: Dir,
+): Promise<ActionResult> {
+  const db = getServiceClient();
+  const { data: cur } = await db
+    .from(table)
+    .select("id,chapter_id,position")
+    .eq("id", id)
+    .maybeSingle();
+  if (!cur) return { ok: false, error: "항목을 찾을 수 없습니다." };
+
+  const { data: rows } = await db
+    .from(table)
+    .select("id,position")
+    .eq("chapter_id", cur.chapter_id)
+    .order("position", { ascending: true });
+  const list = (rows ?? []) as { id: string; position: number }[];
+
+  const idx = list.findIndex((r) => r.id === id);
+  if (idx === -1) return { ok: false, error: "항목을 찾을 수 없습니다." };
+  const target = dir === "up" ? idx - 1 : idx + 1;
+  if (target < 0 || target >= list.length) return { ok: true }; // 경계 → no-op
+
+  [list[idx], list[target]] = [list[target], list[idx]];
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].position !== i) {
+      await db.from(table).update({ position: i }).eq("id", list[i].id);
+    }
+  }
+  revalidate();
+  return { ok: true };
+}
+
+export async function moveVideo(id: string, dir: Dir): Promise<ActionResult> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+  return moveRow("videos", id, dir);
+}
+
+export async function moveMaterial(id: string, dir: Dir): Promise<ActionResult> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+  return moveRow("materials", id, dir);
+}
+
 export async function deleteVideo(id: string): Promise<ActionResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
   const db = getServiceClient();
