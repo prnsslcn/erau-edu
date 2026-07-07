@@ -32,7 +32,7 @@ export default async function LearnLayout({
             </span>
             <Link
               href="/learn/mypage"
-              className="text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+              className="text-base font-medium text-slate-500 transition hover:text-slate-800 disabled:opacity-50 sm:text-xl"
             >
               MyPage
             </Link>
