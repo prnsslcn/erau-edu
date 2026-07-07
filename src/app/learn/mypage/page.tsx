@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { getStudentDetail } from "@/lib/db/progress";
 import NeuProgress from "@/components/NeuProgress";
 import MyAccount from "@/components/MyAccount";
+import { formatPhone } from "@/lib/phone";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export default async function MyPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">MyPage</h1>
           <p className="mt-1 text-sm text-slate-500">
-            {student.name} · {student.phone} · 가입{" "}
+            {student.name} · {formatPhone(student.phone)} · 가입{" "}
             {student.created_at.slice(0, 10)}
           </p>
         </div>

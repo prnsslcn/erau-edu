@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { UserCheck } from "lucide-react";
+import { formatPhone } from "@/lib/phone";
 import {
   approveStudent,
   rejectStudent,
@@ -62,7 +63,7 @@ export default function PendingApprovals({ items }: { items: PendingItem[] }) {
             <div className="min-w-0">
               <p className="font-medium text-slate-700">{s.name}</p>
               <p className="text-xs text-slate-500">
-                {s.phone} · 신청 {s.created_at.slice(0, 10)}
+                {formatPhone(s.phone)} · 신청 {s.created_at.slice(0, 10)}
               </p>
             </div>
             <div className="flex shrink-0 gap-2">

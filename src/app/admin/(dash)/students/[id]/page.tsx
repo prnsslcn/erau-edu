@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getStudentDetail } from "@/lib/db/progress";
 import StudentChapters from "@/components/admin/StudentChapters";
 import StudentAdminActions from "@/components/admin/StudentAdminActions";
+import { formatPhone } from "@/lib/phone";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,8 @@ export default async function StudentDetailPage({
           {student.name}
         </h1>
         <p className="mt-1 text-sm text-slate-500">
-          {student.phone} · {completed} / {publishedCount} chapters done
+          {formatPhone(student.phone)} · {completed} / {publishedCount} chapters
+          done
         </p>
       </div>
 

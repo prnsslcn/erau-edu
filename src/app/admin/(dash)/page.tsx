@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getDashboardSummary, getPendingStudents } from "@/lib/db/progress";
 import NeuProgress from "@/components/NeuProgress";
 import PendingApprovals from "@/components/admin/PendingApprovals";
+import { formatPhone } from "@/lib/phone";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +89,9 @@ export default async function AdminDashboard() {
                       )}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-slate-500">{r.student.phone}</td>
+                  <td className="px-4 py-3 text-slate-500">
+                    {formatPhone(r.student.phone)}
+                  </td>
                   <td className="px-4 py-3 text-slate-500">
                     {r.completedCount} / {r.totalChapters}
                   </td>

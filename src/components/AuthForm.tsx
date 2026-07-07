@@ -12,6 +12,7 @@ import {
   Check,
   type LucideIcon,
 } from "lucide-react";
+import { formatPhoneInput } from "@/lib/phone";
 
 const ICONS: Record<string, LucideIcon> = {
   user: User,
@@ -28,6 +29,7 @@ export interface AuthField {
   inputMode?: "text" | "numeric" | "tel" | "email";
   maxLength?: number;
   autoComplete?: string;
+  autoFormat?: "phone"; // 입력 중 하이픈 자동 삽입
 }
 
 interface Props {
@@ -143,6 +145,15 @@ export default function AuthForm({
                   inputMode={f.inputMode}
                   maxLength={f.maxLength}
                   autoComplete={f.autoComplete}
+                  onChange={
+                    f.autoFormat === "phone"
+                      ? (e) => {
+                          e.currentTarget.value = formatPhoneInput(
+                            e.currentTarget.value,
+                          );
+                        }
+                      : undefined
+                  }
                   required
                   placeholder=" "
                   className="peer absolute inset-0 h-full w-full border-none bg-transparent px-3 pt-4 text-[1.05rem] text-slate-700 outline-none"

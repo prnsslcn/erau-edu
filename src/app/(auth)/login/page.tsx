@@ -16,6 +16,8 @@ export default function StudentLoginPage() {
           icon: "phone",
           inputMode: "tel",
           autoComplete: "username",
+          autoFormat: "phone",
+          maxLength: 13,
         },
         {
           name: "password",
