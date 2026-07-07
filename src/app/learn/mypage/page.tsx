@@ -25,7 +25,7 @@ export default async function MyPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">마이페이지</h1>
+          <h1 className="text-2xl font-bold tracking-tight">MyPage</h1>
           <p className="mt-1 text-sm text-slate-500">
             {student.name} · {student.phone} · 가입{" "}
             {student.created_at.slice(0, 10)}
