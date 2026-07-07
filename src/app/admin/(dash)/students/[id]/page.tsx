@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getStudentDetail } from "@/lib/db/progress";
 import StudentChapters from "@/components/admin/StudentChapters";
+import StudentAdminActions from "@/components/admin/StudentAdminActions";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,12 @@ export default async function StudentDetailPage({
           {student.phone} · {completed} / {publishedCount} chapters done
         </p>
       </div>
+
+      <StudentAdminActions
+        studentId={student.id}
+        studentName={student.name}
+        approved={student.approved}
+      />
 
       {chapters.length === 0 ? (
         <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">

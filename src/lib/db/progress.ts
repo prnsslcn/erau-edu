@@ -3,7 +3,7 @@ import { getServiceClient } from "@/lib/supabase";
 import type { Chapter, Student, Video, VideoProgress } from "./types";
 
 export interface StudentProgressSummary {
-  student: Pick<Student, "id" | "name" | "phone" | "created_at">;
+  student: Pick<Student, "id" | "name" | "phone" | "created_at" | "approved">;
   completedCount: number;
   totalChapters: number;
   percent: number;
@@ -27,10 +27,13 @@ export interface PendingStudent {
 
 export async function getPendingStudents(): Promise<PendingStudent[]> {
   const db = getServiceClient();
+  // 가입 신청 대기 = 아직 한 번도 승인 안 됨(approved_at IS NULL).
+  // 정지된 학생(approved=false지만 approved_at 있음)은 제외.
   const { data } = await db
     .from("students")
     .select("id, name, phone, created_at")
     .eq("approved", false)
+    .is("approved_at", null)
     .order("created_at", { ascending: true });
   return (data ?? []) as PendingStudent[];
 }
@@ -45,8 +48,9 @@ export async function getDashboardSummary(): Promise<{
     await Promise.all([
       db
         .from("students")
-        .select("id, name, phone, created_at")
-        .eq("approved", true)
+        // 승인 이력이 있는 학생(활성 + 정지). 가입 대기(approved_at NULL)는 제외.
+        .select("id, name, phone, created_at, approved")
+        .not("approved_at", "is", null)
         .order("created_at", { ascending: false }),
       db.from("chapters").select("id").eq("is_published", true),
       db.from("videos").select("id, chapter_id"),
@@ -79,7 +83,10 @@ export async function getDashboardSummary(): Promise<{
   }
 
   const rows: StudentProgressSummary[] = (
-    (students ?? []) as Pick<Student, "id" | "name" | "phone" | "created_at">[]
+    (students ?? []) as Pick<
+      Student,
+      "id" | "name" | "phone" | "created_at" | "approved"
+    >[]
   ).map((s) => {
     const done = completedByStudent.get(s.id) ?? new Set<string>();
     let completedCount = 0;

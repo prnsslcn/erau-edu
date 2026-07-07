@@ -11,13 +11,16 @@ export default async function AdminDashboard() {
     getPendingStudents(),
   ]);
 
+  const activeRows = rows.filter((r) => r.student.approved);
   const avgPercent =
-    rows.length > 0
-      ? Math.round(rows.reduce((s, r) => s + r.percent, 0) / rows.length)
+    activeRows.length > 0
+      ? Math.round(
+          activeRows.reduce((s, r) => s + r.percent, 0) / activeRows.length,
+        )
       : 0;
 
   const kpis = [
-    { label: "등록 학생", value: `${rows.length}`, unit: "명" },
+    { label: "등록 학생", value: `${activeRows.length}`, unit: "명" },
     { label: "승인 대기", value: `${pending.length}`, unit: "명" },
     { label: "공개 강의", value: `${totalChapters}`, unit: "개" },
     { label: "평균 진도율", value: `${avgPercent}`, unit: "%" },
@@ -76,7 +79,14 @@ export default async function AdminDashboard() {
                   className="border-b border-slate-200/70 transition-colors last:border-0 hover:bg-slate-200/40"
                 >
                   <td className="px-4 py-3 font-medium text-slate-700">
-                    {r.student.name}
+                    <span className="inline-flex items-center gap-2">
+                      {r.student.name}
+                      {!r.student.approved && (
+                        <span className="rounded-full bg-red-400/15 px-2 py-0.5 text-[11px] font-medium text-red-500 ring-1 ring-inset ring-red-400/30">
+                          정지
+                        </span>
+                      )}
+                    </span>
                   </td>
                   <td className="px-4 py-3 text-slate-500">{r.student.phone}</td>
                   <td className="px-4 py-3 text-slate-500">

@@ -26,7 +26,13 @@ export default async function LearnLayout({
               Program
             </span>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <Link
+              href="/learn/mypage"
+              className="text-sm font-medium text-slate-500 transition-colors hover:text-slate-900"
+            >
+              마이페이지
+            </Link>
             <span className="hidden text-sm text-slate-500 sm:inline">
               {session.name} 님
             </span>
