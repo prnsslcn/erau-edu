@@ -3,6 +3,8 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Chapter, Material, Video } from "@/lib/db/types";
+import NeuProgress from "@/components/NeuProgress";
+import { putToSignedUrl } from "@/lib/upload";
 import {
   createChapter,
   updateChapter,
@@ -11,10 +13,41 @@ import {
   deleteVideo,
   moveVideo,
   moveMaterial,
-  uploadMaterial,
+  createMaterialUploadTicket,
+  finalizeMaterial,
   deleteMaterial,
   type ActionResult,
 } from "@/app/admin/(dash)/chapters/actions";
+
+// 자료 1개 업로드: 티켓 발급 → 브라우저가 Storage로 직접 PUT → 서버에서 확정.
+// 파일 바이트가 서버 함수를 거치지 않으므로 본문 상한(1MB/4.5MB)에 걸리지 않는다.
+async function uploadMaterialFile(
+  chapterId: string,
+  file: File,
+  title: string,
+  onProgress?: (percent: number) => void,
+): Promise<ActionResult> {
+  const ticket = await createMaterialUploadTicket(
+    chapterId,
+    file.name,
+    file.size,
+  );
+  if (!ticket.ok || !ticket.url || !ticket.path)
+    return { ok: false, error: ticket.error ?? "업로드 준비에 실패했습니다." };
+
+  try {
+    await putToSignedUrl(ticket.url, file, onProgress);
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : "업로드에 실패했습니다.",
+    };
+  }
+
+  // 제목 미입력 시 원본 파일명을 쓴다.
+  // (Storage 경로는 [^\w.\-] 를 _ 로 바꾸므로 한글 파일명이 뭉개진다 → 표시용 제목은 원본 유지)
+  return finalizeMaterial(chapterId, ticket.path, title.trim() || file.name);
+}
 
 const moveBtnCls =
   "shrink-0 rounded-md px-1.5 text-slate-400 transition-colors hover:text-slate-700 disabled:opacity-30 disabled:hover:text-slate-400";
@@ -46,23 +79,74 @@ function ChapterForm({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState<{
+    name: string;
+    percent: number;
+    index: number;
+    total: number;
+  } | null>(null);
   // 생성 폼에서 직접 추가하는 클립/자료 입력 행
   const clipSeq = useRef(1);
   const matSeq = useRef(1);
   const [clipRows, setClipRows] = useState<number[]>([0]);
   const [matRows, setMatRows] = useState<number[]>([]);
 
-  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const fd = new FormData(e.currentTarget);
-    start(async () => {
-      const res: ActionResult = chapter
-        ? await updateChapter(chapter.id, fd)
-        : await createChapter(fd);
-      if (res.ok) onDone();
-      else setError(res.error ?? "오류가 발생했습니다.");
+
+    // 수정 모드 — 파일 입력이 없으므로 그대로 전송
+    if (chapter) {
+      start(async () => {
+        const res: ActionResult = await updateChapter(chapter.id, fd);
+        if (res.ok) onDone();
+        else setError(res.error ?? "오류가 발생했습니다.");
+      });
+      return;
+    }
+
+    // 생성 모드 — 자료 파일은 서버 액션에 싣지 않는다(본문 상한).
+    // 챕터를 먼저 만들고, 그 id로 브라우저가 Storage에 직접 올린다.
+    const rawFiles = fd.getAll("material_file");
+    const rawTitles = fd.getAll("material_title").map((v) => String(v));
+    const picked: { file: File; title: string }[] = [];
+    rawFiles.forEach((f, i) => {
+      if (f instanceof File && f.size > 0)
+        picked.push({ file: f, title: rawTitles[i] ?? "" });
     });
+    fd.delete("material_file");
+    fd.delete("material_title");
+
+    setBusy(true);
+    const res = await createChapter(fd);
+    if (!res.ok || !res.id) {
+      setBusy(false);
+      setError(res.error ?? "오류가 발생했습니다.");
+      return;
+    }
+
+    for (let i = 0; i < picked.length; i++) {
+      const { file, title } = picked[i];
+      setUploading({ name: file.name, percent: 0, index: i + 1, total: picked.length });
+      const r = await uploadMaterialFile(res.id, file, title, (percent) =>
+        setUploading({ name: file.name, percent, index: i + 1, total: picked.length }),
+      );
+      if (!r.ok) {
+        setBusy(false);
+        setUploading(null);
+        // 챕터는 이미 생성된 상태 — 나머지는 Content 화면에서 이어서 올리면 된다
+        setError(
+          `챕터는 생성됐지만 "${file.name}" 업로드에 실패했습니다 (${r.error}). Content 화면에서 다시 올려주세요.`,
+        );
+        return;
+      }
+    }
+
+    setUploading(null);
+    setBusy(false);
+    onDone();
   }
 
   return (
@@ -191,19 +275,34 @@ function ChapterForm({
         </div>
       )}
 
+      {uploading && (
+        <div>
+          <div className="mb-1 flex justify-between text-xs text-slate-500">
+            <span className="truncate">
+              자료 업로드 {uploading.index}/{uploading.total} · {uploading.name}
+            </span>
+            <span className="shrink-0 tabular-nums">
+              {uploading.percent < 100 ? `${uploading.percent}%` : "저장 중…"}
+            </span>
+          </div>
+          <NeuProgress percent={uploading.percent} className="h-1.5" />
+        </div>
+      )}
+
       {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-2">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || busy}
           className="neu-btn-primary px-4 py-2 text-sm"
         >
-          {pending ? "Saving…" : chapter ? "Save" : "Add"}
+          {pending || busy ? "Saving…" : chapter ? "Save" : "Add"}
         </button>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
+            disabled={busy}
             className="neu-btn px-4 py-2 text-sm font-medium text-slate-600"
           >
             Cancel
@@ -340,19 +439,35 @@ function MaterialSection({
 }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [uploading, setUploading] = useState(false);
+  const [percent, setPercent] = useState(0);
 
-  function onUpload(e: React.FormEvent<HTMLFormElement>) {
+  async function onUpload(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     const form = e.currentTarget;
     const fd = new FormData(form);
-    start(async () => {
-      const res = await uploadMaterial(chapterId, fd);
-      if (res.ok) {
-        form.reset();
-        refresh();
-      } else setError(res.error ?? "오류");
-    });
+
+    const file = fd.get("file");
+    if (!(file instanceof File) || file.size === 0) {
+      setError("파일을 선택하세요.");
+      return;
+    }
+
+    setUploading(true);
+    setPercent(0);
+    const res = await uploadMaterialFile(
+      chapterId,
+      file,
+      String(fd.get("title") ?? ""),
+      setPercent,
+    );
+    setUploading(false);
+
+    if (res.ok) {
+      form.reset();
+      refresh();
+    } else setError(res.error ?? "오류");
   }
 
   function onDelete(id: string) {
@@ -431,12 +546,18 @@ function MaterialSection({
         />
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || uploading}
           className="neu-btn px-3 py-2 text-sm"
         >
-          {pending ? "업로드…" : "+ 업로드"}
+          {/* 100% 이후에도 서버 확정(finalize)이 남아 있어 멈춘 것처럼 보이므로 상태를 구분한다 */}
+          {uploading
+            ? percent < 100
+              ? `업로드 ${percent}%`
+              : "저장 중…"
+            : "+ 업로드"}
         </button>
       </form>
+      {uploading && <NeuProgress percent={percent} className="h-1.5" />}
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );

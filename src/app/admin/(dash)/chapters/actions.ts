@@ -11,6 +11,10 @@ export interface ActionResult {
   error?: string;
 }
 
+// 자료 PDF 상한 — Storage 버킷(materials)에 걸린 file_size_limit 과 동일하게 맞춘다.
+// (버킷 한도를 넘기면 업로드가 Storage 단에서 거부된다)
+const MAX_PDF_BYTES = 50_000_000;
+
 function revalidate() {
   revalidatePath("/admin/chapters");
   revalidatePath("/learn");
@@ -26,13 +30,21 @@ function parseChapter(formData: FormData) {
   });
 }
 
-export async function createChapter(formData: FormData): Promise<ActionResult> {
+// 챕터 생성 결과 — 생성 직후 클라이언트가 자료를 직접 업로드할 수 있게 id를 돌려준다.
+export interface CreateChapterResult extends ActionResult {
+  id?: string;
+}
+
+export async function createChapter(
+  formData: FormData,
+): Promise<CreateChapterResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
   const parsed = parseChapter(formData);
   if (!parsed.success)
     return { ok: false, error: parsed.error.issues[0]?.message };
 
-  // 폼에서 함께 받은 클립/자료를 먼저 검증 (부분 생성 방지)
+  // 폼에서 함께 받은 클립을 먼저 검증 (부분 생성 방지).
+  // 자료 PDF는 이 액션을 거치지 않는다 — 챕터 생성 후 브라우저가 Storage로 직접 업로드.
   const clipUrls = formData.getAll("clip_youtube").map((v) => String(v).trim());
   const clipTitles = formData.getAll("clip_title").map((v) => String(v).trim());
   const clips: { youtube_id: string; title: string | null }[] = [];
@@ -45,19 +57,6 @@ export async function createChapter(formData: FormData): Promise<ActionResult> {
         error: `클립 ${i + 1}: 올바른 YouTube 링크 또는 ID가 아닙니다.`,
       };
     clips.push({ youtube_id: yid, title: clipTitles[i] || null });
-  }
-
-  const matFiles = formData.getAll("material_file");
-  const matTitles = formData.getAll("material_title").map((v) => String(v));
-  const materials: { file: File; title: string }[] = [];
-  for (let i = 0; i < matFiles.length; i++) {
-    const f = matFiles[i];
-    if (!(f instanceof File) || f.size === 0) continue;
-    if (f.type !== "application/pdf")
-      return { ok: false, error: `자료 ${i + 1}: PDF 파일만 업로드할 수 있습니다.` };
-    if (f.size > 50 * 1024 * 1024)
-      return { ok: false, error: `자료 ${i + 1}: 파일이 너무 큽니다 (최대 50MB).` };
-    materials.push({ file: f, title: matTitles[i]?.trim() || f.name });
   }
 
   const db = getServiceClient();
@@ -85,28 +84,8 @@ export async function createChapter(formData: FormData): Promise<ActionResult> {
     );
   }
 
-  for (let i = 0; i < materials.length; i++) {
-    const { file, title } = materials[i];
-    const safe = file.name.replace(/[^\w.\-]+/g, "_");
-    const path = `${chapter.id}/${Date.now()}_${i}_${safe}`;
-    const { error: upErr } = await db.storage
-      .from("materials")
-      .upload(path, await file.arrayBuffer(), {
-        contentType: "application/pdf",
-        upsert: false,
-      });
-    if (upErr) continue;
-    await db.from("materials").insert({
-      chapter_id: chapter.id,
-      title,
-      storage_path: path,
-      size_bytes: file.size,
-      position: i,
-    });
-  }
-
   revalidate();
-  return { ok: true };
+  return { ok: true, id: chapter.id };
 }
 
 export async function updateChapter(
@@ -243,34 +222,76 @@ export async function deleteVideo(id: string): Promise<ActionResult> {
 }
 
 // ─────────────── 자료 (PDF) ───────────────
-export async function uploadMaterial(
+// 업로드는 2단계다. 파일 바이트가 서버 함수를 통과하지 않는 게 핵심:
+//   Next.js Server Action 기본 본문 상한 1MB, Vercel 함수 하드캡 4.5MB, Hobby 실행시간 10초.
+//   → 서버는 서명된 업로드 URL(티켓)만 발급하고, 브라우저가 Storage로 직접 PUT 한다.
+//   ① createMaterialUploadTicket : 검증 후 업로드 URL 발급
+//   ② (브라우저가 직접 PUT)
+//   ③ finalizeMaterial           : 실제 업로드 결과를 확인하고 DB 행 생성
+
+export interface UploadTicket extends ActionResult {
+  url?: string; // 브라우저가 PUT 할 서명 URL (토큰 포함)
+  path?: string; // 확정 단계에서 그대로 돌려줘야 하는 경로
+}
+
+export async function createMaterialUploadTicket(
   chapterId: string,
-  formData: FormData,
+  fileName: string,
+  sizeBytes: number,
+): Promise<UploadTicket> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+
+  if (!/\.pdf$/i.test(fileName))
+    return { ok: false, error: "PDF 파일만 업로드할 수 있습니다." };
+  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0)
+    return { ok: false, error: "빈 파일입니다." };
+  if (sizeBytes > MAX_PDF_BYTES)
+    return { ok: false, error: "파일이 너무 큽니다 (최대 50MB)." };
+
+  const db = getServiceClient();
+  const { data: chapter } = await db
+    .from("chapters")
+    .select("id")
+    .eq("id", chapterId)
+    .maybeSingle();
+  if (!chapter) return { ok: false, error: "챕터를 찾을 수 없습니다." };
+
+  // 경로는 서버가 정한다 (클라이언트가 임의 경로를 덮어쓰지 못하도록)
+  const safeName = fileName.replace(/[^\w.\-]+/g, "_");
+  const path = `${chapterId}/${Date.now()}_${safeName}`;
+
+  const { data, error } = await db.storage
+    .from("materials")
+    .createSignedUploadUrl(path);
+  if (error || !data)
+    return { ok: false, error: "업로드 URL 발급에 실패했습니다." };
+
+  return { ok: true, url: data.signedUrl, path: data.path };
+}
+
+export async function finalizeMaterial(
+  chapterId: string,
+  path: string,
+  title: string,
 ): Promise<ActionResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
 
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0)
-    return { ok: false, error: "파일을 선택하세요." };
-  if (file.type !== "application/pdf")
-    return { ok: false, error: "PDF 파일만 업로드할 수 있습니다." };
-  if (file.size > 50 * 1024 * 1024)
-    return { ok: false, error: "파일이 너무 큽니다 (최대 50MB)." };
-
-  const titleInput = (formData.get("title") as string | null)?.trim();
-  const title = titleInput || file.name;
-  const safeName = file.name.replace(/[^\w.\-]+/g, "_");
-  const path = `${chapterId}/${Date.now()}_${safeName}`;
+  // 티켓에서 발급한 형태의 경로만 허용
+  if (!new RegExp(`^${chapterId}/\\d+_[\\w.\\-]+$`).test(path))
+    return { ok: false, error: "잘못된 업로드 경로입니다." };
 
   const db = getServiceClient();
-  const { error: upErr } = await db.storage
-    .from("materials")
-    .upload(path, await file.arrayBuffer(), {
-      contentType: "application/pdf",
-      upsert: false,
-    });
-  if (upErr) return { ok: false, error: "업로드 실패: " + upErr.message };
+  const fileName = path.slice(chapterId.length + 1);
 
+  // 파일이 실제로 올라왔는지 Storage에서 직접 확인 (크기도 클라이언트 말 대신 여기서 읽는다)
+  const { data: files } = await db.storage
+    .from("materials")
+    .list(chapterId, { search: fileName });
+  const uploaded = files?.find((f) => f.name === fileName);
+  if (!uploaded)
+    return { ok: false, error: "업로드된 파일을 찾을 수 없습니다." };
+
+  const size = (uploaded.metadata?.size as number | undefined) ?? null;
   const { count } = await db
     .from("materials")
     .select("*", { count: "exact", head: true })
@@ -278,15 +299,17 @@ export async function uploadMaterial(
 
   const { error } = await db.from("materials").insert({
     chapter_id: chapterId,
-    title,
+    title: title.trim() || fileName,
     storage_path: path,
-    size_bytes: file.size,
+    size_bytes: size,
     position: count ?? 0,
   });
   if (error) {
+    // DB 행 생성 실패 시 고아 파일이 남지 않도록 정리
     await db.storage.from("materials").remove([path]);
     return { ok: false, error: "자료 저장 중 오류가 발생했습니다." };
   }
+
   revalidate();
   return { ok: true };
 }
