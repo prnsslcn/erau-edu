@@ -53,6 +53,41 @@ async function uploadMaterialFile(
   return finalizeMaterial(chapterId, ticket.path, title.trim() || file.name);
 }
 
+// 영상 1개 업로드: 티켓(Bunny 자리+서명) → 브라우저가 TUS 로 직접 전송 → 서버에서 확정.
+// 챕터 생성 폼과 Content 화면이 같은 경로를 쓴다.
+async function uploadVideoFile(
+  chapterId: string,
+  file: File,
+  title: string,
+  onProgress?: (percent: number) => void,
+): Promise<ActionResult> {
+  const ticket = await createVideoUploadTicket(chapterId, file.name, file.size);
+  if (!ticket.ok || !ticket.videoId)
+    return { ok: false, error: ticket.error ?? "업로드 준비에 실패했습니다." };
+
+  try {
+    await uploadToBunny(
+      {
+        endpoint: ticket.endpoint!,
+        libraryId: ticket.libraryId!,
+        videoId: ticket.videoId,
+        signature: ticket.signature!,
+        expire: ticket.expire!,
+      },
+      file,
+      onProgress,
+    );
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : "업로드에 실패했습니다.",
+    };
+  }
+
+  // 제목을 비워 보내면 서버가 Bunny 쪽 제목(확장자 뺀 파일명)으로 채운다
+  return finalizeUploadedVideo(chapterId, ticket.videoId, title);
+}
+
 const moveBtnCls =
   "shrink-0 rounded-md px-1.5 text-slate-400 transition-colors hover:text-slate-700 disabled:opacity-30 disabled:hover:text-slate-400";
 
@@ -85,15 +120,18 @@ function ChapterForm({
   const [pending, start] = useTransition();
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState<{
+    kind: string;
     name: string;
     percent: number;
     index: number;
     total: number;
   } | null>(null);
-  // 생성 폼에서 직접 추가하는 클립/자료 입력 행
+  // 생성 폼에서 직접 추가하는 클립/영상/자료 입력 행
   const clipSeq = useRef(1);
+  const vidSeq = useRef(1);
   const matSeq = useRef(1);
   const [clipRows, setClipRows] = useState<number[]>([0]);
+  const [vidRows, setVidRows] = useState<number[]>([]);
   const [matRows, setMatRows] = useState<number[]>([]);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -111,17 +149,22 @@ function ChapterForm({
       return;
     }
 
-    // 생성 모드 — 자료 파일은 서버 액션에 싣지 않는다(본문 상한).
-    // 챕터를 먼저 만들고, 그 id로 브라우저가 Storage에 직접 올린다.
-    const rawFiles = fd.getAll("material_file");
-    const rawTitles = fd.getAll("material_title").map((v) => String(v));
-    const picked: { file: File; title: string }[] = [];
-    rawFiles.forEach((f, i) => {
-      if (f instanceof File && f.size > 0)
-        picked.push({ file: f, title: rawTitles[i] ?? "" });
-    });
-    fd.delete("material_file");
-    fd.delete("material_title");
+    // 생성 모드 — 영상/자료 파일은 서버 액션에 싣지 않는다(본문 상한).
+    // 챕터를 먼저 만들고, 그 id로 브라우저가 각 저장소에 직접 올린다.
+    function pick(fileField: string, titleField: string) {
+      const files = fd.getAll(fileField);
+      const titles = fd.getAll(titleField).map((v) => String(v));
+      const out: { file: File; title: string }[] = [];
+      files.forEach((f, i) => {
+        if (f instanceof File && f.size > 0)
+          out.push({ file: f, title: titles[i] ?? "" });
+      });
+      fd.delete(fileField);
+      fd.delete(titleField);
+      return out;
+    }
+    const pickedVideos = pick("video_file", "video_title");
+    const pickedMaterials = pick("material_file", "material_title");
 
     setBusy(true);
     const res = await createChapter(fd);
@@ -130,13 +173,35 @@ function ChapterForm({
       setError(res.error ?? "오류가 발생했습니다.");
       return;
     }
+    const chapterId = res.id;
 
-    for (let i = 0; i < picked.length; i++) {
-      const { file, title } = picked[i];
-      setUploading({ name: file.name, percent: 0, index: i + 1, total: picked.length });
-      const r = await uploadMaterialFile(res.id, file, title, (percent) =>
-        setUploading({ name: file.name, percent, index: i + 1, total: picked.length }),
-      );
+    // 영상 → 자료 순으로 하나씩 (Content 화면의 배치 순서와 동일)
+    const queue: {
+      kind: string;
+      file: File;
+      title: string;
+      upload: typeof uploadVideoFile;
+    }[] = [
+      ...pickedVideos.map((v) => ({ ...v, kind: "영상", upload: uploadVideoFile })),
+      ...pickedMaterials.map((m) => ({
+        ...m,
+        kind: "자료",
+        upload: uploadMaterialFile,
+      })),
+    ];
+
+    for (let i = 0; i < queue.length; i++) {
+      const { kind, file, title, upload } = queue[i];
+      const track = (percent: number) =>
+        setUploading({
+          kind,
+          name: file.name,
+          percent,
+          index: i + 1,
+          total: queue.length,
+        });
+      track(0);
+      const r = await upload(chapterId, file, title, track);
       if (!r.ok) {
         setBusy(false);
         setUploading(null);
@@ -244,6 +309,42 @@ function ChapterForm({
           </div>
 
           <div className="space-y-2">
+            <p className="text-xs font-semibold text-slate-500">
+              영상 파일 (직접 업로드)
+            </p>
+            {vidRows.map((id) => (
+              <div key={id} className="flex items-center gap-2">
+                <input
+                  name="video_file"
+                  type="file"
+                  accept="video/mp4,video/quicktime,video/x-m4v,video/webm,video/x-matroska"
+                  className="min-w-0 flex-1 text-xs text-slate-600 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-200 file:px-2 file:py-1 file:text-xs file:text-slate-600"
+                />
+                <input
+                  name="video_title"
+                  placeholder="제목(선택)"
+                  className={`${inputCls} w-32`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setVidRows((r) => r.filter((x) => x !== id))}
+                  className="shrink-0 px-1.5 text-sm text-red-500"
+                  aria-label="영상 행 삭제"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setVidRows((r) => [...r, vidSeq.current++])}
+              className="neu-btn px-3 py-1.5 text-xs"
+            >
+              + 영상 추가
+            </button>
+          </div>
+
+          <div className="space-y-2">
             <p className="text-xs font-semibold text-slate-500">자료 PDF</p>
             {matRows.map((id) => (
               <div key={id} className="flex items-center gap-2">
@@ -283,13 +384,18 @@ function ChapterForm({
         <div>
           <div className="mb-1 flex justify-between text-xs text-slate-500">
             <span className="truncate">
-              자료 업로드 {uploading.index}/{uploading.total} · {uploading.name}
+              {uploading.kind} 업로드 {uploading.index}/{uploading.total} ·{" "}
+              {uploading.name}
             </span>
             <span className="shrink-0 tabular-nums">
               {uploading.percent < 100 ? `${uploading.percent}%` : "저장 중…"}
             </span>
           </div>
           <NeuProgress percent={uploading.percent} className="h-1.5" />
+          <p className="mt-1 text-xs text-slate-400">
+            업로드가 끝날 때까지 이 화면을 닫지 마세요. 챕터는 이미 생성됐으므로,
+            중간에 실패해도 Content 화면에서 이어서 올릴 수 있습니다.
+          </p>
         </div>
       )}
 
@@ -507,39 +613,11 @@ function VideoFileSection({
     setUploading(true);
     setPercent(0);
 
-    const ticket = await createVideoUploadTicket(
+    const res = await uploadVideoFile(
       chapterId,
-      file.name,
-      file.size,
-    );
-    if (!ticket.ok || !ticket.videoId) {
-      setUploading(false);
-      setError(ticket.error ?? "업로드 준비에 실패했습니다.");
-      return;
-    }
-
-    try {
-      await uploadToBunny(
-        {
-          endpoint: ticket.endpoint!,
-          libraryId: ticket.libraryId!,
-          videoId: ticket.videoId,
-          signature: ticket.signature!,
-          expire: ticket.expire!,
-        },
-        file,
-        setPercent,
-      );
-    } catch (err) {
-      setUploading(false);
-      setError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
-      return;
-    }
-
-    const res = await finalizeUploadedVideo(
-      chapterId,
-      ticket.videoId,
+      file,
       String(fd.get("title") ?? ""),
+      setPercent,
     );
     setUploading(false);
 
