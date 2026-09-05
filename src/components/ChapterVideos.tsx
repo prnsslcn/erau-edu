@@ -3,11 +3,14 @@
 import { useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import YouTubePlayer from "@/components/YouTubePlayer";
+import BunnyPlayer from "@/components/BunnyPlayer";
 import NeuProgress from "@/components/NeuProgress";
 
 export interface VideoItem {
   id: string;
-  youtube_id: string;
+  source: "youtube" | "bunny";
+  youtube_id: string | null; // source='youtube'
+  embed_url: string | null; // source='bunny' — 서버에서 서명한 URL
   title: string | null;
   last_position: number;
   watched_seconds: number;
@@ -97,18 +100,35 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
         )}
       </div>
 
-      {/* 활성 Clip 플레이어 */}
-      {current && (
-        <YouTubePlayer
-          key={current.id}
-          videoId={current.id}
-          youtubeId={current.youtube_id}
-          initialPosition={current.last_position}
-          initialWatchedSeconds={current.watched_seconds}
-          initialCompleted={current.completed}
-          label={multi ? current.title || `Clip ${active + 1}` : undefined}
-        />
-      )}
+      {/* 활성 Clip 플레이어 — 출처에 따라 분기 (진도 로직은 양쪽 동일) */}
+      {current &&
+        (current.source === "bunny" ? (
+          current.embed_url ? (
+            <BunnyPlayer
+              key={current.id}
+              videoId={current.id}
+              embedUrl={current.embed_url}
+              initialPosition={current.last_position}
+              initialWatchedSeconds={current.watched_seconds}
+              initialCompleted={current.completed}
+              label={multi ? current.title || `Clip ${active + 1}` : undefined}
+            />
+          ) : (
+            <p className="neu-flat rounded-2xl p-8 text-center text-sm text-slate-400">
+              영상을 불러올 수 없습니다.
+            </p>
+          )
+        ) : current.youtube_id ? (
+          <YouTubePlayer
+            key={current.id}
+            videoId={current.id}
+            youtubeId={current.youtube_id}
+            initialPosition={current.last_position}
+            initialWatchedSeconds={current.watched_seconds}
+            initialCompleted={current.completed}
+            label={multi ? current.title || `Clip ${active + 1}` : undefined}
+          />
+        ) : null)}
     </div>
   );
 }

@@ -28,11 +28,16 @@ export interface Chapter {
   updated_at: string;
 }
 
+// 영상 출처 — 'youtube'는 미등록 영상 임베드, 'bunny'는 교수가 직접 업로드한 파일
+export type VideoSource = "youtube" | "bunny";
+
 export interface Video {
   id: string;
   chapter_id: string;
   title: string | null;
-  youtube_id: string;
+  source: VideoSource;
+  youtube_id: string | null; // source='youtube' 일 때만
+  asset_id: string | null; // source='bunny' 일 때 Bunny Stream GUID
   duration_seconds: number | null;
   position: number;
   created_at: string;

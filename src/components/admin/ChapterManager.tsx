@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import type { Chapter, Material, Video } from "@/lib/db/types";
 import NeuProgress from "@/components/NeuProgress";
-import { putToSignedUrl } from "@/lib/upload";
+import { putToSignedUrl, uploadToBunny } from "@/lib/upload";
 import {
   createChapter,
   updateChapter,
@@ -16,7 +16,11 @@ import {
   createMaterialUploadTicket,
   finalizeMaterial,
   deleteMaterial,
+  createVideoUploadTicket,
+  finalizeUploadedVideo,
+  getUploadedVideoStatuses,
   type ActionResult,
+  type VideoStatus,
 } from "@/app/admin/(dash)/chapters/actions";
 
 // 자료 1개 업로드: 티켓 발급 → 브라우저가 Storage로 직접 PUT → 서버에서 확정.
@@ -357,7 +361,7 @@ function VideoSection({
   return (
     <div className="space-y-2">
       <p className="text-xs font-semibold text-slate-500">
-        Clip ({videos.length})
+        Clip · YouTube ({videos.length})
       </p>
       {videos.length > 0 && (
         <ul className="space-y-1.5">
@@ -422,6 +426,241 @@ function VideoSection({
           + Clip
         </button>
       </form>
+      {error && <p className="text-xs text-red-600">{error}</p>}
+    </div>
+  );
+}
+
+// ─────────────── 직접 업로드 영상 (Bunny Stream) ───────────────
+// Clip(YouTube) 과 자료 PDF 사이. 업로드 통로는 자료 PDF와 동일한 티켓 방식이고
+// 목적지만 Bunny 이며, 수백 MB를 감안해 끊기면 이어받는 TUS 를 쓴다.
+
+const STATUS_LABEL: Record<number, { text: string; cls: string }> = {
+  0: { text: "대기 중", cls: "bg-slate-400/10 text-slate-500" },
+  1: { text: "업로드 중", cls: "bg-blue-400/15 text-brand" },
+  2: { text: "처리 중", cls: "bg-blue-400/15 text-brand" },
+  3: { text: "인코딩 중", cls: "bg-amber-400/15 text-amber-700" },
+  4: { text: "재생 가능", cls: "bg-emerald-400/15 text-emerald-700" },
+  5: { text: "실패", cls: "bg-red-400/15 text-red-600" },
+};
+
+function VideoFileSection({
+  chapterId,
+  videos,
+  refresh,
+}: {
+  chapterId: string;
+  videos: Video[];
+  refresh: () => void;
+}) {
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const [uploading, setUploading] = useState(false);
+  const [percent, setPercent] = useState(0);
+  const [statuses, setStatuses] = useState<Record<string, VideoStatus>>({});
+
+  const assetIds = videos
+    .map((v) => v.asset_id)
+    .filter((a): a is string => !!a);
+  const assetKey = assetIds.join(",");
+
+  // 인코딩이 끝나지 않은 영상이 있으면 주기적으로 상태를 확인한다
+  useEffect(() => {
+    if (assetIds.length === 0) return;
+    let stopped = false;
+
+    async function poll() {
+      const rows = await getUploadedVideoStatuses(assetIds);
+      if (stopped) return;
+      const next: Record<string, VideoStatus> = {};
+      for (const r of rows) next[r.guid] = r;
+      setStatuses(next);
+      // 전부 준비되면 폴링 중단
+      return rows.every((r) => r.status >= 4);
+    }
+
+    poll();
+    const timer = setInterval(async () => {
+      const done = await poll();
+      if (done) clearInterval(timer);
+    }, 6000);
+
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assetKey]);
+
+  async function onUpload(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+
+    const file = fd.get("file");
+    if (!(file instanceof File) || file.size === 0) {
+      setError("영상 파일을 선택하세요.");
+      return;
+    }
+
+    setUploading(true);
+    setPercent(0);
+
+    const ticket = await createVideoUploadTicket(
+      chapterId,
+      file.name,
+      file.size,
+    );
+    if (!ticket.ok || !ticket.videoId) {
+      setUploading(false);
+      setError(ticket.error ?? "업로드 준비에 실패했습니다.");
+      return;
+    }
+
+    try {
+      await uploadToBunny(
+        {
+          endpoint: ticket.endpoint!,
+          libraryId: ticket.libraryId!,
+          videoId: ticket.videoId,
+          signature: ticket.signature!,
+          expire: ticket.expire!,
+        },
+        file,
+        setPercent,
+      );
+    } catch (err) {
+      setUploading(false);
+      setError(err instanceof Error ? err.message : "업로드에 실패했습니다.");
+      return;
+    }
+
+    const res = await finalizeUploadedVideo(
+      chapterId,
+      ticket.videoId,
+      String(fd.get("title") ?? ""),
+    );
+    setUploading(false);
+
+    if (res.ok) {
+      form.reset();
+      refresh();
+    } else setError(res.error ?? "오류");
+  }
+
+  function onDelete(v: Video) {
+    if (!confirm(`"${v.title || "제목 없음"}" 영상을 삭제할까요?\nBunny에 저장된 원본도 함께 삭제됩니다.`))
+      return;
+    start(async () => {
+      await deleteVideo(v.id);
+      refresh();
+    });
+  }
+
+  function onMove(id: string, dir: "up" | "down") {
+    start(async () => {
+      await moveVideo(id, dir);
+      refresh();
+    });
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-semibold text-slate-500">
+        영상 파일 ({videos.length})
+      </p>
+
+      {videos.length > 0 && (
+        <ul className="space-y-1.5">
+          {videos.map((v, i) => {
+            const st = v.asset_id ? statuses[v.asset_id] : undefined;
+            const badge = STATUS_LABEL[st?.status ?? 0] ?? STATUS_LABEL[0];
+            return (
+              <li
+                key={v.id}
+                className="flex items-center justify-between gap-2 rounded-lg bg-slate-200/40 px-3 py-1.5 text-sm"
+              >
+                <span className="flex min-w-0 items-center gap-2 text-slate-600">
+                  <span className="shrink-0 text-slate-400">#{v.position}</span>
+                  <span className="truncate">{v.title || "제목 없음"}</span>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium ${badge.cls}`}
+                  >
+                    {badge.text}
+                    {st && st.status === 3 && st.encodeProgress > 0
+                      ? ` ${st.encodeProgress}%`
+                      : ""}
+                  </span>
+                  {st && st.length > 0 && (
+                    <span className="shrink-0 text-xs text-slate-400">
+                      {Math.floor(st.length / 60)}분 {st.length % 60}초
+                    </span>
+                  )}
+                </span>
+                <span className="flex shrink-0 items-center gap-0.5">
+                  <button
+                    onClick={() => onMove(v.id, "up")}
+                    disabled={pending || i === 0}
+                    className={moveBtnCls}
+                    aria-label="위로"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    onClick={() => onMove(v.id, "down")}
+                    disabled={pending || i === videos.length - 1}
+                    className={moveBtnCls}
+                    aria-label="아래로"
+                  >
+                    ↓
+                  </button>
+                  <button
+                    onClick={() => onDelete(v)}
+                    disabled={pending}
+                    className="ml-1 text-xs text-red-500 hover:underline disabled:opacity-50"
+                  >
+                    삭제
+                  </button>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <form onSubmit={onUpload} className="flex flex-wrap items-center gap-2">
+        <input
+          name="file"
+          type="file"
+          accept="video/mp4,video/quicktime,video/x-m4v,video/webm,video/x-matroska"
+          required
+          className="min-w-0 flex-1 text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-200 file:px-3 file:py-1.5 file:text-sm file:text-slate-600"
+        />
+        <input
+          name="title"
+          placeholder="영상 제목 (선택)"
+          className={`${inputCls} w-40`}
+        />
+        <button
+          type="submit"
+          disabled={pending || uploading}
+          className="neu-btn px-3 py-2 text-sm"
+        >
+          {uploading
+            ? percent < 100
+              ? `업로드 ${percent}%`
+              : "저장 중…"
+            : "+ 업로드"}
+        </button>
+      </form>
+      {uploading && <NeuProgress percent={percent} className="h-1.5" />}
+      {uploading && percent < 100 && (
+        <p className="text-xs text-slate-400">
+          업로드 중에는 이 화면을 닫지 마세요. 연결이 끊겨도 같은 파일을 다시
+          선택하면 이어서 올라갑니다.
+        </p>
+      )}
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   );
@@ -658,7 +897,9 @@ export default function ChapterManager({
                         </span>
                       </div>
                       <p className="mt-1 text-xs text-slate-400">
-                        Clip {c.videos.length}개 · 자료 {c.materials.length}개
+                        Clip {c.videos.filter((v) => v.source !== "bunny").length}개 ·
+                        영상 {c.videos.filter((v) => v.source === "bunny").length}개 ·
+                        자료 {c.materials.length}개
                       </p>
                     </div>
                     <div className="flex shrink-0 gap-2">
@@ -689,7 +930,12 @@ export default function ChapterManager({
                     <div className="mt-4 space-y-4 border-t border-slate-200 pt-4">
                       <VideoSection
                         chapterId={c.id}
-                        videos={c.videos}
+                        videos={c.videos.filter((v) => v.source !== "bunny")}
+                        refresh={refresh}
+                      />
+                      <VideoFileSection
+                        chapterId={c.id}
+                        videos={c.videos.filter((v) => v.source === "bunny")}
                         refresh={refresh}
                       />
                       <MaterialSection

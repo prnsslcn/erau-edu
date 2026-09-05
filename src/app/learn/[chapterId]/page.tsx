@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import { getStudentChapters } from "@/lib/db/learn";
 import { getServiceClient } from "@/lib/supabase";
 import type { Material } from "@/lib/db/types";
+import { signedEmbedUrl } from "@/lib/bunny";
 import ChapterVideos from "@/components/ChapterVideos";
 
 export const dynamic = "force-dynamic";
@@ -80,7 +81,13 @@ export default async function ChapterPlayerPage({
           <ChapterVideos
             videos={videos.map((v) => ({
               id: v.video.id,
+              source: v.video.source,
               youtube_id: v.video.youtube_id,
+              // 직접 업로드 영상은 서버에서 서명한 임베드 URL로만 재생 가능
+              embed_url:
+                v.video.source === "bunny" && v.video.asset_id
+                  ? signedEmbedUrl(v.video.asset_id)
+                  : null,
               title: v.video.title,
               last_position: v.progress?.last_position ?? 0,
               watched_seconds: v.progress?.watched_seconds ?? 0,

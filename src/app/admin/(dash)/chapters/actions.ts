@@ -5,6 +5,12 @@ import { getServiceClient } from "@/lib/supabase";
 import { requireRole } from "@/lib/auth/session";
 import { chapterSchema, videoSchema } from "@/lib/validation";
 import { extractYouTubeId } from "@/lib/youtube";
+import {
+  createBunnyVideo,
+  createBunnyUploadTicket,
+  getBunnyVideo,
+  deleteBunnyVideo,
+} from "@/lib/bunny";
 
 export interface ActionResult {
   ok: boolean;
@@ -124,6 +130,15 @@ export async function deleteChapter(id: string): Promise<ActionResult> {
   if (mats && mats.length > 0) {
     await db.storage.from("materials").remove(mats.map((m) => m.storage_path));
   }
+  // 직접 업로드 영상의 Bunny 원본도 정리 (DB 행은 FK cascade로 지워지지만 Bunny는 별개)
+  const { data: uploaded } = await db
+    .from("videos")
+    .select("asset_id")
+    .eq("chapter_id", id)
+    .eq("source", "bunny");
+  for (const v of uploaded ?? []) {
+    if (v.asset_id) await deleteBunnyVideo(v.asset_id).catch(() => {});
+  }
   const { error } = await db.from("chapters").delete().eq("id", id);
   if (error) return { ok: false, error: "삭제 중 오류가 발생했습니다." };
   revalidate();
@@ -215,10 +230,144 @@ export async function moveMaterial(id: string, dir: Dir): Promise<ActionResult> 
 export async function deleteVideo(id: string): Promise<ActionResult> {
   if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
   const db = getServiceClient();
+
+  // 직접 업로드 영상이면 Bunny 쪽 원본도 함께 지운다(요금이 저장 용량 기준이므로 방치 금물)
+  const { data: row } = await db
+    .from("videos")
+    .select("source, asset_id")
+    .eq("id", id)
+    .maybeSingle();
+
   const { error } = await db.from("videos").delete().eq("id", id);
-  if (error) return { ok: false, error: "Clip 삭제 중 오류가 발생했습니다." };
+  if (error) return { ok: false, error: "영상 삭제 중 오류가 발생했습니다." };
+
+  if (row?.source === "bunny" && row.asset_id) {
+    await deleteBunnyVideo(row.asset_id).catch(() => {});
+  }
+
   revalidate();
   return { ok: true };
+}
+
+// ─────────────── 직접 업로드 영상 (Bunny Stream) ───────────────
+// 자료 PDF와 동일한 티켓 방식. 목적지만 Supabase Storage → Bunny 로 바뀐다.
+//   ① createVideoUploadTicket : Bunny에 영상 자리 생성 + TUS 서명 발급
+//   ② (브라우저가 TUS로 직접 업로드 — 끊기면 이어서 재개)
+//   ③ finalizeUploadedVideo   : 업로드 확인 후 DB 행 생성
+
+const VIDEO_EXT = /\.(mp4|mov|m4v|webm|mkv)$/i;
+const MAX_VIDEO_BYTES = 5_000_000_000; // 5GB — 사고성 대용량 업로드 방지용 상한
+
+export interface VideoUploadTicket extends ActionResult {
+  endpoint?: string;
+  libraryId?: string;
+  videoId?: string;
+  signature?: string;
+  expire?: number;
+}
+
+export async function createVideoUploadTicket(
+  chapterId: string,
+  fileName: string,
+  sizeBytes: number,
+): Promise<VideoUploadTicket> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+
+  if (!VIDEO_EXT.test(fileName))
+    return {
+      ok: false,
+      error: "영상 파일만 업로드할 수 있습니다 (mp4, mov, m4v, webm, mkv).",
+    };
+  if (!Number.isFinite(sizeBytes) || sizeBytes <= 0)
+    return { ok: false, error: "빈 파일입니다." };
+  if (sizeBytes > MAX_VIDEO_BYTES)
+    return { ok: false, error: "파일이 너무 큽니다 (최대 5GB)." };
+
+  const db = getServiceClient();
+  const { data: chapter } = await db
+    .from("chapters")
+    .select("id")
+    .eq("id", chapterId)
+    .maybeSingle();
+  if (!chapter) return { ok: false, error: "챕터를 찾을 수 없습니다." };
+
+  try {
+    const guid = await createBunnyVideo(fileName.replace(VIDEO_EXT, ""));
+    const ticket = createBunnyUploadTicket(guid);
+    return { ok: true, ...ticket };
+  } catch (e) {
+    return {
+      ok: false,
+      error: e instanceof Error ? e.message : "업로드 준비에 실패했습니다.",
+    };
+  }
+}
+
+export async function finalizeUploadedVideo(
+  chapterId: string,
+  guid: string,
+  title: string,
+): Promise<ActionResult> {
+  if (!(await requireRole("admin"))) return { ok: false, error: "권한 없음" };
+  if (!/^[0-9a-f-]{36}$/i.test(guid))
+    return { ok: false, error: "잘못된 영상 식별자입니다." };
+
+  // 업로드가 실제로 Bunny에 도착했는지 확인 (클라이언트 보고를 믿지 않는다)
+  const video = await getBunnyVideo(guid).catch(() => null);
+  if (!video) return { ok: false, error: "업로드된 영상을 찾을 수 없습니다." };
+
+  const db = getServiceClient();
+  const { count } = await db
+    .from("videos")
+    .select("*", { count: "exact", head: true })
+    .eq("chapter_id", chapterId);
+
+  const { error } = await db.from("videos").insert({
+    chapter_id: chapterId,
+    source: "bunny",
+    asset_id: guid,
+    youtube_id: null,
+    title: title.trim() || video.title || null,
+    // 길이는 인코딩 완료 후에야 확정된다. 비워두면 학생 첫 재생 때 /api/progress 가 채운다.
+    duration_seconds: video.length > 0 ? video.length : null,
+    position: count ?? 0,
+  });
+  if (error) {
+    await deleteBunnyVideo(guid).catch(() => {});
+    return { ok: false, error: "영상 저장 중 오류가 발생했습니다." };
+  }
+
+  revalidate();
+  return { ok: true };
+}
+
+// 인코딩 진행 상황 조회 (관리자 화면 폴링용)
+export interface VideoStatus {
+  guid: string;
+  status: number; // 4 = 재생 가능
+  encodeProgress: number;
+  length: number;
+}
+
+export async function getUploadedVideoStatuses(
+  guids: string[],
+): Promise<VideoStatus[]> {
+  if (!(await requireRole("admin"))) return [];
+  const unique = [...new Set(guids)].slice(0, 50);
+  const rows = await Promise.all(
+    unique.map(async (guid) => {
+      const v = await getBunnyVideo(guid).catch(() => null);
+      return v
+        ? {
+            guid,
+            status: v.status,
+            encodeProgress: v.encodeProgress,
+            length: v.length,
+          }
+        : null;
+    }),
+  );
+  return rows.filter((r): r is VideoStatus => r !== null);
 }
 
 // ─────────────── 자료 (PDF) ───────────────
