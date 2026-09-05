@@ -15,6 +15,7 @@ export interface VideoItem {
   last_position: number;
   watched_seconds: number;
   completed: boolean;
+  duration_seconds: number; // 서버가 아는 길이 — 재생 전에도 진도율을 정확히 표시
 }
 
 // 챕터 내 여러 Clip — 진도 + 토글식 선택 목록 + 단일 플레이어 (자유 시청)
@@ -111,6 +112,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
               initialPosition={current.last_position}
               initialWatchedSeconds={current.watched_seconds}
               initialCompleted={current.completed}
+              initialDuration={current.duration_seconds}
               label={multi ? current.title || `Clip ${active + 1}` : undefined}
             />
           ) : (
@@ -126,6 +128,7 @@ export default function ChapterVideos({ videos }: { videos: VideoItem[] }) {
             initialPosition={current.last_position}
             initialWatchedSeconds={current.watched_seconds}
             initialCompleted={current.completed}
+            initialDuration={current.duration_seconds}
             label={multi ? current.title || `Clip ${active + 1}` : undefined}
           />
         ) : null)}

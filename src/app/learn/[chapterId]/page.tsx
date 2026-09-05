@@ -91,6 +91,7 @@ export default async function ChapterPlayerPage({
               title: v.video.title,
               last_position: v.progress?.last_position ?? 0,
               watched_seconds: v.progress?.watched_seconds ?? 0,
+              duration_seconds: v.video.duration_seconds ?? 0,
               completed: v.completed,
             }))}
           />

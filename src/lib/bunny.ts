@@ -115,7 +115,9 @@ export function signedEmbedUrl(guid: string, ttlSeconds = 60 * 60 * 6): string {
     token,
     expires: String(expires),
     autoplay: "false",
-    preload: "false",
+    // 이어보기(setCurrentTime)가 동작하려면 미디어가 먼저 로드돼야 한다.
+    // preload 는 true|false 만 받는다(auto/metadata/none 은 400).
+    preload: "true",
   });
   return `${EMBED_BASE}/${libraryId}/${guid}?${params}`;
 }

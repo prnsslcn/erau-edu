@@ -22,6 +22,17 @@ declare global {
   }
 }
 
+// 이전 세션에서 이미 본 시간을 Set 에 미리 채운다.
+// 어느 '초'를 봤는지는 저장하지 않고 총량만 저장하므로, 순차 시청을 전제로 0..N-1 로 채운다.
+// 이게 없으면 재생을 시작하는 순간 집계가 0부터 다시 시작해
+//   (1) 화면 진도율이 뚝 떨어지고
+//   (2) 여러 번에 나눠 본 학생의 진도가 영원히 누적되지 않는다(서버가 max 로 유지하므로).
+function seedWatched(seconds: number): Set<number> {
+  const s = new Set<number>();
+  for (let i = 0; i < Math.max(0, seconds); i++) s.add(i);
+  return s;
+}
+
 const COMPLETE_RATIO = 0.9;
 const SAMPLE_MS = 500;
 const FLUSH_MS = 5000;
@@ -49,6 +60,7 @@ export default function YouTubePlayer({
   initialPosition,
   initialWatchedSeconds,
   initialCompleted,
+  initialDuration,
   label,
 }: {
   videoId: string;
@@ -56,21 +68,22 @@ export default function YouTubePlayer({
   initialPosition: number;
   initialWatchedSeconds: number;
   initialCompleted: boolean;
+  initialDuration: number;
   label?: string;
 }) {
   const router = useRouter();
   const mountRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YTPlayer | null>(null);
 
-  const watchedRef = useRef<Set<number>>(new Set());
+  const watchedRef = useRef<Set<number>>(seedWatched(initialWatchedSeconds));
   const lastPosRef = useRef<number>(initialPosition);
-  const durationRef = useRef<number>(0);
+  const durationRef = useRef<number>(initialDuration);
   const dirtyRef = useRef<boolean>(false);
   const completedRef = useRef<boolean>(initialCompleted);
   const readyRef = useRef<boolean>(false);
 
   const [watchedCount, setWatchedCount] = useState(initialWatchedSeconds);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState(initialDuration);
   const [completed, setCompleted] = useState(initialCompleted);
 
   async function flush() {

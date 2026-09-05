@@ -26,6 +26,17 @@ declare global {
 
 const COMPLETE_RATIO = 0.9;
 const FLUSH_MS = 5000;
+// 이전 세션에서 이미 본 시간을 Set 에 미리 채운다.
+// 어느 '초'를 봤는지는 저장하지 않고 총량만 저장하므로, 순차 시청을 전제로 0..N-1 로 채운다.
+// 이게 없으면 재생을 시작하는 순간 집계가 0부터 다시 시작해
+//   (1) 화면 진도율이 뚝 떨어지고
+//   (2) 여러 번에 나눠 본 학생의 진도가 영원히 누적되지 않는다(서버가 max 로 유지하므로).
+function seedWatched(seconds: number): Set<number> {
+  const s = new Set<number>();
+  for (let i = 0; i < Math.max(0, seconds); i++) s.add(i);
+  return s;
+}
+
 const PLAYERJS_SRC =
   "https://assets.mediadelivery.net/playerjs/playerjs-latest.min.js";
 
@@ -49,6 +60,7 @@ export default function BunnyPlayer({
   initialPosition,
   initialWatchedSeconds,
   initialCompleted,
+  initialDuration,
   label,
 }: {
   videoId: string;
@@ -56,19 +68,21 @@ export default function BunnyPlayer({
   initialPosition: number;
   initialWatchedSeconds: number;
   initialCompleted: boolean;
+  initialDuration: number;
   label?: string;
 }) {
   const router = useRouter();
   const frameRef = useRef<HTMLIFrameElement>(null);
 
-  const watchedRef = useRef<Set<number>>(new Set());
+  const watchedRef = useRef<Set<number>>(seedWatched(initialWatchedSeconds));
   const lastPosRef = useRef<number>(initialPosition);
-  const durationRef = useRef<number>(0);
+  const durationRef = useRef<number>(initialDuration);
   const dirtyRef = useRef<boolean>(false);
   const completedRef = useRef<boolean>(initialCompleted);
+  const resumedRef = useRef<boolean>(false);
 
   const [watchedCount, setWatchedCount] = useState(initialWatchedSeconds);
-  const [duration, setDuration] = useState(0);
+  const [duration, setDuration] = useState(initialDuration);
   const [completed, setCompleted] = useState(initialCompleted);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,8 +120,11 @@ export default function BunnyPlayer({
         if (cancelled || !frameRef.current || !window.playerjs) return;
         const player = new window.playerjs.Player(frameRef.current);
 
+        // 이어보기 — 2초 앞에서 시작.
+        // ready 에서 한 번 시도하되 성공 여부를 단정하지 않는다. 스크립트가 늦게 로드되면
+        // ready 를 놓칠 수 있고, 메타데이터 로드 전이면 seek 이 무시되기 때문이다.
+        // 실제 보장은 아래 timeupdate 폴백이 한다.
         player.on("ready", () => {
-          // 이어보기 — 2초 앞에서 시작
           if (initialPosition > 2) player.setCurrentTime(initialPosition - 2);
         });
 
@@ -116,6 +133,17 @@ export default function BunnyPlayer({
           if (d > 0 && durationRef.current !== d) {
             durationRef.current = d;
             setDuration(d);
+          }
+
+          // 첫 timeupdate 시점엔 미디어가 확실히 준비돼 있다.
+          // 처음부터 재생되고 있을 때(seconds<=2)만 되감아, 학생이 직접 앞으로
+          // 옮겨놓은 위치를 빼앗지 않는다.
+          if (!resumedRef.current) {
+            resumedRef.current = true;
+            if (initialPosition > 2 && seconds <= 2) {
+              player.setCurrentTime(initialPosition - 2);
+              return;
+            }
           }
           const t = Math.floor(seconds);
           if (!watchedRef.current.has(t)) {
